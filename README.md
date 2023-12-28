@@ -14,6 +14,15 @@
 |  ----  | ----  |
 | webhookMessage  | √ |
 | webhookMarkdown  | √ |
+| webhookLink  | √ |
+| webhookActioncard  | √ |
+| webhookFeedcard  | √ |
+| 内部群普通消息  | √ |
+| 内部群图片消息  | √ |
+| 内部群文件消息  | √ |
+| 内部群音频消息  | √ |
+| 内部群视频消息  | x |
+| 互动卡片  | 部分支持 |
 
 # 注意
 
