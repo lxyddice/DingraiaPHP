@@ -1,1 +1,37 @@
-{"global_function":["webhook","staffid","Atitle","actionURL","ApicUrl","conversationType","rename","restaffid","chatbotCorpId","robotCode","conversationId","bot_run_as"]}
+{
+    "global_function": [
+        "webhook",
+        "staffid",
+        "Atitle",
+        "actionURL",
+        "ApicUrl",
+        "conversationType",
+        "rename",
+        "restaffid",
+        "chatbotCorpId",
+        "robotCode",
+        "conversationId"
+    ],
+    "index_return": "200",
+    "index_hide_load": "0",
+    "index_not_load": "0",
+    "index_reveal": "config\/404.php",
+    "visitor_mode": "1",
+    "dingraia_php_version": "v240112.1-Alpha",
+    "dingraia_php_Master-slaveMode": "slave",
+    "dingraiaAuthKey": "",
+    "dingraiaAuthTimeout": 10,
+    "dingraiaWithNoSQL": false,
+    "adminUsername": "lxyddice",
+    "adminPassword": "114514",
+    "adminCode": "1145",
+    "host_url": "",
+    "botSendTestInfo": "0",
+    "cron":{
+        "autoRestart":323,
+        "runParams":"?cronRun",
+        "stopParams":"?cronStop",
+        "restartParams":"?cronRestart",
+        "restartUrl":""
+    }
+}
