@@ -66,7 +66,7 @@ At需要传入userid
 
 # 号外
 
-插件社区准备开发，欢迎来到[https://github.com/lxyddice/DingraiaPHP_offical/blob/main/betterHelp.php](https://github.com/lxyddice/DingraiaPHP_offical/blob/main/betterHelp.php)！
+插件社区准备开发，欢迎来到[https://github.com/lxyddice/DingraiaPHP_offical](https://github.com/lxyddice/DingraiaPHP_offical)！
 
 实现bot内通过指令获取插件，就像pip install 那么简单！还能检查更新、在线更新、自动配置插件帮助、自动配置插件日志！
 
