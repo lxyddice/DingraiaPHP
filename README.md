@@ -3,7 +3,7 @@
 # 这是什么？
 
 这个是一个关于运行钉钉机器人的代码，用来运行Webhook的钉钉机器人功能，框架中有部分小工具。
-只实现了20%的功能，将来可能会完善。
+只实现了23.3%的功能，将来可能会完善。
 作者是PHP废物，请不要催，你行你上。
 
 # 特点
@@ -26,7 +26,7 @@
 
 # 注意
 
-本项目适用于一般聊天机器人开发，不建议用于生产环境
+本项目适用于一般聊天机器人、娱乐机器人的开发，不建议用于生产环境
 
 At需要传入userid
 
@@ -64,6 +64,10 @@ At需要传入userid
 
 请提交issue或在钉钉联系我...邮箱也行，lxy@lxyddice.top
 
+# 号外
+
+插件社区准备开发，欢迎来到[https://github.com/lxyddice/DingraiaPHP_offical/blob/main/betterHelp.php](https://github.com/lxyddice/DingraiaPHP_offical/blob/main/betterHelp.php) ~
+
 # 最后要说
 
 性能：国内服务器完全访问加载要200-400ms，cpu使用时间约100ms，一次接收发送大约1-3秒，肯定远不及stream的，而且部署在国外服务器/套Cloudflare等操作还会降低速度，甚至超过5s。请自行选择是否使用，后续也会优化（访问网页慢点正常）。
@@ -71,5 +75,3 @@ At需要传入userid
 
 本项目是DingraiaPY的衍生作品，嫌py版本麻烦写的（）
 有兴趣的话去点个star吧
-
-
