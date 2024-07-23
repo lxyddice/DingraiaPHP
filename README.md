@@ -6,6 +6,8 @@
 
 ## 24.05.13 开发服务器没了，人在外地无法回去处理，暂时停更
 
+[关于ffmpeg]()
+
 ![image](https://github.com/lxyddice/DingraiaPHP/assets/95132858/34dd09c7-ad59-4503-88c4-5b8f6afa135b)
 
 越写越像答辩了，一个更完整的php ez开发框架
