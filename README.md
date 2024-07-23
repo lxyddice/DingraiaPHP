@@ -6,7 +6,7 @@
 
 ## 24.05.13 开发服务器没了，人在外地无法回去处理，暂时停更
 
-[关于ffmpeg]()
+[关于ffmpeg](https://github.com/lxyddice/DingraiaPHP/blob/main/doc/%E5%85%B3%E4%BA%8Effmpeg.md)
 
 ![image](https://github.com/lxyddice/DingraiaPHP/assets/95132858/34dd09c7-ad59-4503-88c4-5b8f6afa135b)
 
