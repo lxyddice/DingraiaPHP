@@ -13,25 +13,48 @@
         "conversationId"
     ],
     "index_return": "200",
-    "index_hide_load": "0",
+    "indexDefault": "0",
+    "index_hide_load": "1",
     "index_not_load": "0",
-    "index_reveal": "config\/404.php",
+    "index_reveal": "module/DingraiaPHP/app/normalDisplay.php",
     "visitor_mode": "1",
-    "dingraia_php_version": "v240112.1-Alpha",
+    "useDefaultDisplayPage": 0,
+    "dingraia_php_version": "v240723.1-Alpha",
     "dingraia_php_Master-slaveMode": "slave",
-    "dingraiaAuthKey": "",
-    "dingraiaAuthTimeout": 10,
-    "dingraiaWithNoSQL": false,
+    "dingraiaAuthKey": "yourKey",
+    "dingraiaAuthTimeout": 8,
+    "dingraiaWithNoSQL": false, 
     "adminUsername": "lxyddice",
     "adminPassword": "114514",
-    "adminCode": "1145",
-    "host_url": "",
+    "host_url": "http:\/\/api.lxyddice.top\/dingbot\/php\/",
     "botSendTestInfo": "0",
-    "cron":{
-        "autoRestart":323,
-        "runParams":"?cronRun",
-        "stopParams":"?cronStop",
-        "restartParams":"?cronRestart",
-        "restartUrl":""
-    }
+    "pluginUpdateUrl": "https:\/\/api.lxyddice.top\/v1\/DingraiaPHP\/plugins\/update",
+    "noDeafult": 0,
+    "cron": {
+        "autoRestart": 323,
+        "runParams": "?cronRun",
+        "stopParams": "?cronStop",
+        "restartParams": "?cronRestart",
+        "restartUrl": "?cronRestart"
+    },
+    "htmlAdmin": {
+        "use": "1",
+        "appId": "",
+        "username": "",
+        "password": "",
+        "code": "",
+        "dingtalkOauth2Allow": [
+            ""
+        ]
+    },
+    "logger": {
+        "open": true,
+        "urls": [],
+        "sendLevel": 0,
+        "useLogTollTogether": true
+    },
+    "accessHeader": [
+        "Access-Control-Request-Methods: GET, POST, PUT, DELETE, OPTIONS",
+        "Access-Control-Allow-Origin: *"
+    ]
 }
