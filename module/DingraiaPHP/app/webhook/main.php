@@ -1,5 +1,6 @@
 <?php
-
+/* webhook */
+/* 是。收webhook的也有webhook... */
 if ($bot_run_as) {
     if (file_exists("config/module/webhook/config.json")) {
         $webhookConfig = read_file_to_array("config/module/webhook/config.json");
