@@ -4,7 +4,7 @@
  * oa消息
  * @author auto create
  */
-class Oa
+class OA
 {
 	
 	/** 

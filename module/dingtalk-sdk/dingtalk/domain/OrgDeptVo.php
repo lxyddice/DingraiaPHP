@@ -1,20 +1,20 @@
 <?php
 
 /**
- * 管理范围
+ * 结果集
  * @author auto create
  */
-class OrgDeptVo
+class OrgDeptVO
 {
+	
+	/** 
+	 * 属性值列表
+	 **/
+	public $attribute_list;
 	
 	/** 
 	 * 部门id
 	 **/
-	public $dept_id;
-	
-	/** 
-	 * 部门名称
-	 **/
-	public $name;	
+	public $dept_id;	
 }
 ?>

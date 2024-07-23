@@ -4,16 +4,16 @@
  * demo
  * @author auto create
  */
-class TopMinimalismGroupVo
+class TopMinimalismGroupVO
 {
 	
 	/** 
-	 * 考勤组id
+	 * id
 	 **/
 	public $id;
 	
 	/** 
-	 * 考勤组名称
+	 * 名称
 	 **/
 	public $name;	
 }

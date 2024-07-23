@@ -1,44 +1,39 @@
 <?php
 
 /**
- * 此消息类型为固定actionCard
+ * 卡片消息
  * @author auto create
  */
-class Actioncard
+class ActionCard
 {
 	
 	/** 
-	 * 0-按钮竖直排列，1-按钮横向排列
+	 * 使用独立跳转ActionCard样式时的按钮列表；必须与btn_orientation同时设置
+	 **/
+	public $btn_json_list;
+	
+	/** 
+	 * 使用独立跳转ActionCard样式时的按钮排列方式，竖直排列(0)，横向排列(1)；必须与btn_json_list同时设置
 	 **/
 	public $btn_orientation;
 	
 	/** 
-	 * 按钮的信息
+	 * 消息内容，支持markdown，语法参考标准markdown语法。建议1000个字符以内
 	 **/
-	public $btns;
+	public $markdown;
 	
 	/** 
-	 * 0-正常发消息者头像,1-隐藏发消息者头像
-	 **/
-	public $hide_avatar;
-	
-	/** 
-	 * 单个按钮的方案。(设置此项和singleURL后btns无效。)
+	 * 使用整体跳转ActionCard样式时的标题，必须与single_url同时设置，最长20个字符
 	 **/
 	public $single_title;
 	
 	/** 
-	 * 点击singleTitle按钮触发的URL
+	 * 消息点击链接地址，当发送消息为小程序时支持小程序跳转链接，最长500个字符
 	 **/
-	public $single_u_r_l;
+	public $single_url;
 	
 	/** 
-	 * markdown格式的消息
-	 **/
-	public $text;
-	
-	/** 
-	 * 首屏会话透出的展示内容
+	 * 透出到会话列表和通知的文案，最长64个字符
 	 **/
 	public $title;	
 }

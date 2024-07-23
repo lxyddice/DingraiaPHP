@@ -1,34 +1,29 @@
 <?php
 
 /**
- * 业务数据列表
+ * 业务数据
  * @author auto create
  */
-class Bizdatavo
+class BizDataVo
 {
 	
 	/** 
-	 * 数据变更时间戳，用以保证更新操作的顺序性
+	 * 数据业务时间戳
 	 **/
 	public $biz_time;
 	
 	/** 
-	 * 数据流水唯一标识，如流水号，用以唯一确认一条写入数据
+	 * 业务uk，唯一标识一条流水
 	 **/
 	public $biz_uk;
 	
 	/** 
-	 * 业务域下的细分领域实体
-	 **/
-	public $entity_code;
-	
-	/** 
-	 * 数据字段列表
+	 * 字段列表
 	 **/
 	public $fields;
 	
 	/** 
-	 * 业务域描述，系统分配，枚举见文档
+	 * 数据所属业务域
 	 **/
 	public $scope;
 	

@@ -1,20 +1,15 @@
 <?php
 
 /**
- * result
+ * 开放的机器人实例列表
  * @author auto create
  */
-class ChatbotInstanceVo
+class ChatbotInstanceVO
 {
 	
 	/** 
-	 * 机器人实例userId
+	 * 机器人userId
 	 **/
-	public $chatbot_user_id;
-	
-	/** 
-	 * 机器人发消息时的地址
-	 **/
-	public $webhook;	
+	public $chatbot_user_id;	
 }
 ?>

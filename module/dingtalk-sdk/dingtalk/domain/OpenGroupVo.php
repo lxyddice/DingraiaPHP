@@ -1,10 +1,10 @@
 <?php
 
 /**
- * 组织内知识库列表
+ * 知识库列表
  * @author auto create
  */
-class OpenGroupVo
+class OpenGroupVO
 {
 	
 	/** 

@@ -1,19 +1,29 @@
 <?php
 
 /**
- * 工作地点
+ * 职位地址详情
  * @author auto create
  */
-class JobAddressVo
+class JobAddressVO
 {
 	
 	/** 
-	 * 位置详情
+	 * 地点详情
 	 **/
 	public $detail;
 	
 	/** 
-	 * 位置名称
+	 * 经度
+	 **/
+	public $latitude;
+	
+	/** 
+	 * 纬度
+	 **/
+	public $longitude;
+	
+	/** 
+	 * 地点名
 	 **/
 	public $name;	
 }

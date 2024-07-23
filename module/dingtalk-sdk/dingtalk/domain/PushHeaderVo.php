@@ -1,10 +1,10 @@
 <?php
 
 /**
- * 系统自动生成
+ * 推送头信息
  * @author auto create
  */
-class PushHeaderVo
+class PushHeaderVO
 {
 	
 	/** 
