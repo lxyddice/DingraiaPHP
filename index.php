@@ -6,14 +6,11 @@
  | |_| | | | | | (_| | | | (_| | | (_| |  __/|  _  |  __/
  |____/|_|_| |_|\__, |_|  \__,_|_|\__,_|_|   |_| |_|_|
                 |___/                       v240723-Alpha
-
-error_reporting(E_ERROR | E_WARNING | E_PARSE);
-ini_set('display_errors', 1);
 */
 
 global $bot_run_as;
 $bot_run_as = [];
-
+//有些注释掉的代码真的很老，动不了了
     require_once("module/DingraiaPHP/app/start.php");
     require_once("tools.php");
     app_start();
@@ -96,19 +93,6 @@ $bot_run_as = [];
         send_message($conversationId, $webhook, $staffid);
         exit();
     }
-
-    //$con = mysqli_connect($db_host, $db_user, $db_pass, $db_name);
-    /*
-    if ($globalmessage == "/bot d agree") {
-            write_to_file_json("data/user/is_read_disclaimer/".$guserarr['uid'].".json",['read'=>true]);
-            send_message('你同意了冰晶bot免责声明！',$webhook,$staffid);
-        }
-
-    if (!is_read_disclaimer($guserarr['uid'])) {
-        send_message("你没有同意冰晶bot免责声明，请用/bot d agree  同意\n你可以在https://mc.lxyddice.top/lxe/bot  查看",$webhook,$staffid);
-        exit();
-    }
-    */
     if ($globalmessage == "/bot_start") {
         if (permission_check("bot.start", $guserarr["uid"])) {
             write_to_file_json("data/bot/run.json", ["start" => true]);
@@ -133,24 +117,9 @@ $bot_run_as = [];
 
 
     if (read_file_to_array("data/bot/run.json")['start'] != true) {
-        //send_message("冰晶正在睡觉...",$webhook,$staffid);
         DingraiaPHPResponseExit(400, "Bot global stop");
     }
     $grouparr = read_file_to_array("config/group.json");
-    /*
-    if ($conversationType == 2) {
-        $grouparr = read_file_to_array("config/group.json");
-        if (!in_array($conversationId, $grouparr['white_list'])) {
-            send_message("该群聊不在白名单，无法使用冰晶bot",$webhook,$staffid);
-            exit();
-        }
-    } else {
-        if (!permission_check("bot.siliao", $guserarr["uid"])) {
-            send_message("你没有私聊的权限",$webhook,$staffid);
-            exit();
-        }
-    }
-    */
     $pluginDir = 'plugin';
     require_once("module/DingraiaPHP/app/requireRunPlugin.php");
     $DingraiaPHPresponse = read_file_to_array("data/bot/app/response.json");
