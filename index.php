@@ -76,7 +76,7 @@ $bot_run_as = [];
         }
     }
     app_json_file_add_list($bot_run_as["RUN_LOG_FILE"], ["time" => microtime(), "type" => "start", "run" => 'ok']);
-    require_once("module/DingraiaPHP/app/accountLinkage.php");
+    // require_once("module/DingraiaPHP/app/accountLinkage.php");
     if ($userid && $staffid) {
         $guserarr = userid2uid($userid);
     }

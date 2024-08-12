@@ -1706,24 +1706,6 @@ function request_to_slave($corpId = null, $data) {
     return $res;
 }
 
-function get_dingtalk_callback($timestamp,$nonce,$body) {
-    $token = '1';
-    $encodingAesKey = '2';
-    $suiteKey = '3';
-    
-    $crypto = new Crypto(
-        $token,
-        $encodingAesKey,
-        $suiteKey
-    );
-    $ret = $crypto->encryptMsg('success', $timestamp, $nonce);
-    header("Content-Type: application/json");
-    print_r($ret);
-    $ret = $crypto->decryptMsg($_GET['msg_signature'], $timestamp, $nonce, '4');
-    echo $ret;
-    return json_decode($ret, true);
-}
-
 function get_dingtalk_post() {
     global $bot_run_as;
     $conf = $bot_run_as['config'] = read_file_to_array('config/bot.json');
@@ -1871,9 +1853,15 @@ function get_dingtalk_post() {
     $sec = read_file_to_array('config/cropid.json');
     if (isset($sec[$body['chatbotCorpId']])){
         $secret = $sec[$body['chatbotCorpId']]['AppSecret'];
+        $trueSign = base64_encode($signData = hash_hmac('sha256', $ts . "\n" . $secret, $secret, true));
+        if ($si != $trueSign) {
+            $interview = true;
+            return ["code"=>401, "message"=>"不是合法的来源"];
+        }
     } else {
         $interview = true;
         $secret = null;
+        return ["code"=>401, "message"=>"不是合法的来源"];
     }
     
     
