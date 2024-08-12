@@ -149,7 +149,7 @@ $bot_run_as = [];
             $DingraiaPHPresponse["result"]["loadPlugins"]["msg"] = "无法载入插件文件夹...";
         }
         if ($DingraiaPHPresponse) {
-            if ($bot_run_as['config']['indexDefault'] == "1") {
+            if ($bot_run_as['config']['indexDefault'] == "1" && $bot_run_as['config']['notSendDefault'] != 1) {
                 write_to_file_json("data/bot/app/response.json", ["type" => "html", "content" => file_get_contents($bot_run_as['config']['index_reveal'])]);
             } else {
                 write_to_file_json("data/bot/app/response.json", ["type" => "json", "content" => $DingraiaPHPresponse]);

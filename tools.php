@@ -1708,6 +1708,7 @@ function request_to_slave($corpId = null, $data) {
 
 function get_dingtalk_post() {
     global $bot_run_as;
+    
     $conf = $bot_run_as['config'] = read_file_to_array('config/bot.json');
     $ymd = date('Y-m-d');
     $interview = false;
@@ -1864,6 +1865,7 @@ function get_dingtalk_post() {
         return ["code"=>401, "message"=>"不是合法的来源"];
     }
     
+    $bot_run_as['config']['notSendDefault'] = 1;
     
     if (isset($body['text']) || isset($body['content'])) {
         $body['text']['content'] = ltrim($body['text']['content']);
