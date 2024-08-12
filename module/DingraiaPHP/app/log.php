@@ -1,9 +1,9 @@
 <?php
-function DingraiaPHPLogDisposeMainFn($conf) {
+function DingraiaPHPLogDisposeMainFn() {
     $r = read_file_to_array("data/bot/app_data.json");
     $logLog = $r['log'];
     $ymd = date('Y-m-d');
-    if ($ymd != $logLog['last_dispose_time']) {
+    if ($ymd != $logLog['last_dispose_time'] && file_exists("data/get.json")) {
         rename("data/get.json", "data/bot/log/get/".$ymd.".json");
         write_to_file_json('data/get.json',[]);
         $r['log']['last_dispose_time'] = $ymd;
@@ -12,7 +12,7 @@ function DingraiaPHPLogDisposeMainFn($conf) {
     $logLog = $r['callback'];
     $ymd = date('Y-m-d');
     $r = read_file_to_array("data/bot/app_data.json");
-    if ($ymd != $logLog['last_dispose_time']) {
+    if ($ymd != $logLog['last_dispose_time'] && file_exists("data/callback.json")) {
         rename("data/callback.json", "data/bot/log/callback/".$ymd.".json");
         write_to_file_json('data/callback.json',[]);
         $r['callback']['last_dispose_time'] = $ymd;
@@ -41,7 +41,7 @@ function DingraiaPHPLogDisposeMainFn($conf) {
     $logLog = $r['send'];
     $ymd = date('Y-m-d');
     $r = read_file_to_array("data/bot/app_data.json");
-    if ($ymd != $logLog['last_dispose_time']) {
+    if ($ymd != $logLog['last_dispose_time'] && file_exists("data/send.json")) {
         rename("data/send.json", "data/bot/log/send/".$ymd.".json");
         write_to_file_json('data/send.json',[]);
         $r['send']['last_dispose_time'] = $ymd;
@@ -50,7 +50,7 @@ function DingraiaPHPLogDisposeMainFn($conf) {
     $logLog = $r['group_send'];
     $ymd = date('Y-m-d');
     $r = read_file_to_array("data/bot/app_data.json");
-    if ($ymd != $logLog['last_dispose_time']) {
+    if ($ymd != $logLog['last_dispose_time'] && file_exists("data/group_send.json")) {
         rename("data/group_send.json", "data/bot/log/group_send/".$ymd.".json");
         write_to_file_json('data/group_send.json',[]);
         $r['group_send']['last_dispose_time'] = $ymd;
