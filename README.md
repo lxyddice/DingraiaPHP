@@ -86,7 +86,7 @@
 
 [关于ffmpeg](https://github.com/lxyddice/DingraiaPHP/blob/main/doc/%E5%85%B3%E4%BA%8Effmpeg.md)
 
-![image](https://github.com/lxyddice/DingraiaPHP/assets/95132858/34dd09c7-ad59-4503-88c4-5b8f6afa135b)
+# 啊天...
 
 越写越像答辩了，一个更完整的php ez开发框架
 
