@@ -95,18 +95,6 @@
 
 需要公网可访问的服务器，还得拥有企业内部开发权限
 
-# 如何使用？
-
-在插件文件夹下编写插件，可以在plugin/demo查看示例
-
-查看 [文档](https://doc.lxyddice.top/dingraia_php/dingraia_php)
-
-由于Cloudflare和L服务器的原因，博客和文档可能无法使用，如需帮助请联系我
-
-## 安装
-
-[使用前工作与安装](https://doc.lxyddice.top/dingraia_php/dingraia_php/shi-yong-qian-gong-zuo-yu-an-zhuang)
-
 # 号外
 
 插件社区准备开发，欢迎来到[https://github.com/lxyddice/DingraiaPHP_offical](https://github.com/lxyddice/DingraiaPHP_offical)！
