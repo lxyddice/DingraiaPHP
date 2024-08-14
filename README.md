@@ -9,7 +9,7 @@
 
 # 特点
 
-支持 文字, Markdown FeedCard, ActionCard和文件的发送
+支持 文字, Markdown FeedCard, ActionCard和文件的发送，简单调用钉钉小程序API，可扩展易开发
 
 ## 功能一览
 
