@@ -70,11 +70,29 @@
 
 使用 **场景群** 获取最完整体验
 
+# 演示
+
+## 虚拟主机版
+
+[首页](https://us1-cf.240702.xyz/bot/)
+
+[API端点](https://us1-cf.240702.xyz/bot/?action=api&type=getIp)
+
+[normalDisplay](https://us1-cf.240702.xyz/bot/?action=p&page=index)
+
+## 服务器版
+
+喵喵？喵喵喵喵！喵喵~
+
 # 需求
 
 拥有企业内部开发权限
 
 # 如何使用？
+
+<code>
+git clone https://github.com/lxyddice/DingraiaPHP.git
+</code>
 
 上传框架到你的HTTP服务器目录
 
