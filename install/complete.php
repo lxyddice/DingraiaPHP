@@ -6,7 +6,7 @@ require("config.php");
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>lxy_dingbot安装完毕</title>
+    <title>DingraiaPHP安装完毕</title>
     <link href="https://api.lxyddice.top/v1/DingraiaPHP/asset/install.css" rel="stylesheet" />
     <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 </head>
