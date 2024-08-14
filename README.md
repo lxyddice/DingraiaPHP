@@ -1,4 +1,4 @@
-此文档最后更新于24/08/12 `v240812.1-Alpha`
+此文档最后更新于24/08/12 `v240814.1-Alpha`
 
 # 这是什么？
 
@@ -64,7 +64,7 @@
 
 **本项目基于企业内部机器人开发，使用企业内部机器人以获得更好的体验**
 
-**普通Webhook机器人已经于2023年9月1日停用，目前不再支持（其他解决方法看下方 _发送消息_ 部分）**
+**普通Webhook机器人已经于2023年9月1日停用，目前不再支持（请查阅 [这里](https://doc.lxyddice.top/dingraiaphp/dingraiaphp/fa-song-shi-yong-webhook-de-pu-tong-xiao-xi)）**
 
 ~~**强烈推荐Stream模式**，安全，快速，随处可用~~  PHP网页端用什麽Stream（
 
