@@ -7,4 +7,4 @@ if (file_exists("fn.php")) {
     exit("Can't find toolkit,are you install DingraiaPHP?");
 }
 ?>
-header("Location: https://mc.lxyddice.top/lxyddice/doc/DingraiaPHPApi");
+header("Location: https://api.lxyddice.top/dingbot/php/?action=p&page=apiDoc");
