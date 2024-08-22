@@ -72,7 +72,7 @@
 
 # 演示
 
-## 虚拟主机版
+## 虚拟主机版 固定于v240814.1-Alpha
 
 [首页](https://us1-cf.240702.xyz/bot/)
 
@@ -80,9 +80,13 @@
 
 [normalDisplay](https://us1-cf.240702.xyz/bot/?action=p&page=index)
 
-## 服务器版
+## 服务器版 开发版，开发环境与生产环境结合
 
-喵喵？喵喵喵喵！喵喵~
+[首页](https://api.lxyddice.top/dingbot/php/)
+
+[API：获取图片](https://api.lxyddice.top/dingbot/php/?action=api&type=lxyGetFile&fileType=jpg&file=upload/380da2d3950e3886ffb451833343987c)
+
+[自定义页面：工具网页](https://api.lxyddice.top/dingbot/php/?action=p&page=tools)
 
 # 需求
 
