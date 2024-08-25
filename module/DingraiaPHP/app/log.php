@@ -1,59 +1,65 @@
 <?php
 function DingraiaPHPLogDisposeMainFn() {
     $r = read_file_to_array("data/bot/app_data.json");
-    $logLog = $r['log'];
     $ymd = date('Y-m-d');
-    if ($ymd != $logLog['last_dispose_time'] && file_exists("data/get.json")) {
-        copy("data/get.json", "data/bot/log/get/".$ymd.".json");
-        write_to_file_json('data/get.json',[]);
+    
+    // 处理 log
+    if ($ymd != $r['log']['last_dispose_time'] && file_exists("data/get.json")) {
+        copy("data/get.json", "data/bot/log/get/{$ymd}.json");
+        write_to_file_json('data/get.json', []);
         $r['log']['last_dispose_time'] = $ymd;
-        write_to_file_json("data/bot/app_data.json", $r);
     }
-    $logLog = $r['callback'];
-    $ymd = date('Y-m-d');
-    $r = read_file_to_array("data/bot/app_data.json");
-    if ($ymd != $logLog['last_dispose_time'] && file_exists("data/callback.json")) {
-        copy("data/callback.json", "data/bot/log/callback/".$ymd.".json");
-        write_to_file_json('data/callback.json',[]);
+    
+    // 处理 callback
+    if ($ymd != $r['callback']['last_dispose_time'] && file_exists("data/callback.json")) {
+        if (!is_dir("data/bot/log/callback")) {
+            mkdir("data/bot/log/callback", 0777, true);
+        }
+        copy("data/callback.json", "data/bot/log/callback/{$ymd}.json");
+        write_to_file_json('data/callback.json', []);
         $r['callback']['last_dispose_time'] = $ymd;
+        
         $cacheDir = 'data/bot/cache/';
         $logDir = 'data/bot/log/callback/';
-        $files = glob($cacheDir . "callback,{$ymd}*.json");
+        $files = glob($cacheDir . "callback_{$ymd}*.json");  // 修正了路径拼接错误
         usort($files, function($a, $b) {
             return filemtime($a) <=> filemtime($b);
         });
         $logFile = "{$logDir}{$ymd}_Beta.json";
         $logData = [];
         foreach ($files as $file) {
-            $content = file_get_contents($file);
-            $jsonData = json_decode($content, true);
+            $jsonData = json_decode(file_get_contents($file), true);
             if ($jsonData) {
                 $logData[] = $jsonData;
             }
             unlink($file);
-            DingraiaPHPAddNormalResponse("clearCache",["type"=>"callback","path"=>$logFile], true);
         }
         if (!empty($logData)) {
             file_put_contents($logFile, json_encode($logData));
+            DingraiaPHPAddNormalResponse("clearCache", ["type" => "callback", "path" => $logFile], true);  // 移动至循环外
         }
-        write_to_file_json("data/bot/app_data.json", $r);
     }
-    $logLog = $r['send'];
-    $ymd = date('Y-m-d');
-    $r = read_file_to_array("data/bot/app_data.json");
-    if ($ymd != $logLog['last_dispose_time'] && file_exists("data/send.json")) {
-        copy("data/send.json", "data/bot/log/send/".$ymd.".json");
-        write_to_file_json('data/send.json',[]);
+    
+    // 处理 send
+    if ($ymd != $r['send']['last_dispose_time'] && file_exists("data/send.json")) {
+        if (!is_dir("data/bot/log/send")) {
+            mkdir("data/bot/log/send", 0777, true);
+        }
+        copy("data/send.json", "data/bot/log/send/{$ymd}.json");
+        write_to_file_json('data/send.json', []);
         $r['send']['last_dispose_time'] = $ymd;
-        write_to_file_json("data/bot/app_data.json", $r);
     }
-    $logLog = $r['group_send'];
-    $ymd = date('Y-m-d');
-    $r = read_file_to_array("data/bot/app_data.json");
-    if ($ymd != $logLog['last_dispose_time'] && file_exists("data/group_send.json")) {
-        copy("data/group_send.json", "data/bot/log/group_send/".$ymd.".json");
-        write_to_file_json('data/group_send.json',[]);
+    
+    // 处理 group_send
+    if ($ymd != $r['group_send']['last_dispose_time'] && file_exists("data/group_send.json")) {
+        if (!is_dir("data/bot/log/group_send")) {
+            mkdir("data/bot/log/group_send", 0777, true);
+        }
+        copy("data/group_send.json", "data/bot/log/group_send/{$ymd}.json");
+        write_to_file_json('data/group_send.json', []);
         $r['group_send']['last_dispose_time'] = $ymd;
-        write_to_file_json("data/bot/app_data.json", $r);
     }
+    
+    // 统一更新配置文件
+    write_to_file_json("data/bot/app_data.json", $r);
 }
