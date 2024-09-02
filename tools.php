@@ -90,11 +90,14 @@ function DingraiaPHPCreateShortUrl($url, $onlyOnce = true, $idL = 8) {
     }
     return $id;
 }
+
 function DingraiaPHPGetIp(): array
 {
     static $realip;
     if (isset($_SERVER)){
-        if (isset($_SERVER["HTTP_CF_CONNECTING_IP"])){
+        if (isset($_SERVER["HTTP_CF_PSEUDO_IPV4"])){
+            $realip = ["ip"=>$_SERVER["HTTP_CF_PSEUDO_IPV4"], "ipv6"=>$_SERVER["HTTP_CF_CONNECTING_IP"], "from"=>"CF_PSEUDO_IPV4"];
+        } else if (isset($_SERVER["HTTP_CF_CONNECTING_IP"])){
             $realip = ["ip"=>$_SERVER["HTTP_CF_CONNECTING_IP"], "from"=>"CF_CONNECTING_IP"];
         } else if (isset($_SERVER["HTTP_X_FORWARDED_FOR"])){
             $realip = ["ip"=>$_SERVER["HTTP_X_FORWARDED_FOR"], "from"=>"X_FORWARDED_FOR"];
