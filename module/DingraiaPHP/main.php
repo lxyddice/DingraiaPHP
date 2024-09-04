@@ -27,7 +27,6 @@ function DingraiaPHPLoadMoudlePluginMain($body, $conf) {
                                 if ($c) {
                                     $cm = isset($plugin["chatMode"])? $plugin["chatMode"] : "default";
                                     $c["chat_mode"] = $bot_run_as["chat_mode"] = $cm;
-
                                     $r[] = $c;
                                     return $r;
                                 } elseif (isset($plugin["failReturn"])) {
