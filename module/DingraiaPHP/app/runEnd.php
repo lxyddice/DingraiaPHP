@@ -87,10 +87,11 @@ function outputResponse($responseType, $content) {
     if ($responseType == "json") {
         header('Content-Type: application/json; charset=utf-8');
         echo json_encode($content);
-    } elseif ($responseType == "html") {
+    } else {
         echo $content;
     }
 }
 
+// 调用 DingraiaPHPRunEnd 函数
 DingraiaPHPRunEnd($hideLoadPluginInfo, $hideLoadPluginInfo_B);
 ?>
