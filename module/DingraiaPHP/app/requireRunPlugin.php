@@ -6,11 +6,11 @@ if ($bot_run_as) {
     require_once("install/config.php");
     include_once("pdo.php");
     include_once(__DIR__."/api/main.php");
-    if ($_GET['action'] == "admin") {
+    if (isset($_GET['action']) && $_GET['action'] == "admin") {
         $bot_run_as["useDefaultDisplayPage"] = false;
         require_once("module/DingraiaPHP/app/admin.php");
     }
-    if ($_GET['action'] == "p") {
+    if (isset($_GET['action']) && $_GET['action'] == "p") {
         $bot_run_as["useDefaultDisplayPage"] = false;
         require_once(__DIR__."/templeats/start.php"); 
     }

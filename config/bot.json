@@ -13,13 +13,11 @@
         "conversationId"
     ],
     "index_return": "200",
-    "indexDefault": "0",
-    "index_hide_load": "1",
-    "index_not_load": "0",
-    "index_reveal": "module/DingraiaPHP/app/normalDisplay.php",
-    "visitor_mode": "1",
-    "useDefaultDisplayPage": 0,
-    "dingraia_php_version": "v240723.1-Alpha",
+    "notLoadPlugins": 0,
+    "useDefaultDisplayPage": 1,
+    "hideAllEcho": 0,
+    "indexReveal": "module/DingraiaPHP/app/normalDisplay.php",
+    "dingraia_php_version": "v240909-Alpha",
     "dingraia_php_Master-slaveMode": "slave",
     "dingraiaAuthKey": "yourKey",
     "dingraiaAuthTimeout": 8,
@@ -40,8 +38,8 @@
     "htmlAdmin": {
         "use": "1",
         "appId": "",
-        "username": "",
-        "password": "",
+        "username": "123456",
+        "password": "123456",
         "code": "",
         "dingtalkOauth2Allow": [
             ""

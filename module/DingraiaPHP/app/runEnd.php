@@ -32,16 +32,15 @@ function DingraiaPHPRunEnd($hideLoadPluginInfo, $hideLoadPluginInfo_B) {
     if (isset($bot_run_as["responseMustType"]) && $bot_run_as["responseMustType"] == 1) {
         $response["type"] = $bot_run_as["responseMustTypeText"];
     }
-
+    
+    $response["type"] = isset($response["type"]) ? $response["type"] : "html";
     $responseType = trim($response["type"]);
 
     if ($responseType != "no") {
-        outputResponse($responseType, $response["content"]);
+        outputResponse($responseType, isset($response["content"]) ? $response["content"]: "null");
     }
 
     write_to_file_json("data/bot/app/response.json", []);
-    $output = ob_get_clean();
-    echo $output;
 }
 
 function endBotRun(&$bot_run_as) {
@@ -88,7 +87,7 @@ function outputResponse($responseType, $content) {
         header('Content-Type: application/json; charset=utf-8');
         echo json_encode($content);
     } else {
-        echo $content;
+        echo($content);
     }
 }
 $hideLoadPluginInfo = isset($hideLoadPluginInfo) ?? false;

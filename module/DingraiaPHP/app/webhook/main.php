@@ -4,7 +4,7 @@ if ($bot_run_as) {
     if (file_exists("config/module/webhook/config.json")) {
         $webhookConfig = read_file_to_array("config/module/webhook/config.json");
         if (isset($webhookConfig["sendWebhook"])) {
-            if ($webhookConfig["useSign"]) {
+            if (isset($webhookConfig["useSign"]) && $webhookConfig["useSign"]) {
                 //使用签名
                 $webhookHeader = ["Content-Type" => "application/json", "DingraiaSign"=>hash("sha256",$webhookConfig["sign"].file_get_contents("php://input"))];
             } else {

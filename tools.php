@@ -1493,14 +1493,18 @@ function write_to_file_json($filename, $content) {
     app_json_file_add_list($bot_run_as["RUN_LOG_FILE"], ["time"=>microtime(true),"type"=>"write_to_file_json","filename"=>$filename,"filesize"=>filesize($filename)]);
 }
 
-function read_file_to_array($filename) {
+function read_file_to_array($filename, $falseThenReturnArray = true) {
     global $bot_run_as;
-    if (isFileExists($filename)) {
+    if (file_exists($filename)) {
         $content = file_get_contents($filename);
         app_json_file_add_list($bot_run_as["RUN_LOG_FILE"], ["time"=>microtime(true),"type"=>"read_file_to_array","filename"=>$filename,"filesize"=>filesize($filename)]);
         return json_decode($content, true);
     } else {
-        return false;
+        if ($falseThenReturnArray) {
+            return [];
+        } else {
+            return false;
+        }
     }
 }
 

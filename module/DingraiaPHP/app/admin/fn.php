@@ -1,5 +1,5 @@
 <?php
-if ($rgkNo != 1) {
+if (isset($rgkNo) && $rgkNo != 1) {
     if (file_exists("verifyFrom.php")) {
         require_once("verifyFrom.php");
     } elseif (file_exists("module/DingraiaPHP/app/admin/verifyFrom.php")) {

@@ -145,14 +145,7 @@ if ($bot_run_as) {
             $apiResponse["result"] = $resultData;
         }
         require_once(__DIR__."/htmlAdmin.php");
-        require_once(__DIR__."/lxyddice.php");
         require_once(__DIR__."/other.php");
-        require_once(__DIR__."/githubOAuth2.php");
-        require_once(__DIR__."/htmlPage.php");
-        require_once(__DIR__."/lxyCurlPHP.php");
-        require_once(__DIR__."/lxyAPP.php");
-        require_once(__DIR__."/lxyTi.php");
-        require_once(__DIR__."/lxyCraft.php");
         /*需验证签名的API*/
         if ($_GET['type'] == "oauth2Get") {
             if (isset($_GET['state']) && isset($_GET['DingraiaPHPState']) && isset($_GET['timeStamp']) && isset($_GET['sign'])) {
