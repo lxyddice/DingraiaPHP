@@ -66,9 +66,8 @@ $bot_run_as = [];
         $rename = htmlspecialchars($name);
         $uid = userid2uid($userid)['uid'];
         $bot_run_as["logger"]["class"]->info("[$groupnanme($conversationId)] $name($uid) -> $message");
-    } else {
-        $DingraiaPHPGet = $c;
     }
+    $DingraiaPHPGet = $c;
     app_json_file_add_list($bot_run_as["RUN_LOG_FILE"], ["time" => microtime(), "type" => "start", "run" => 'ok']);
     if (isset($userid) && isset($staffid)) {
         $guserarr = userid2uid($userid);
