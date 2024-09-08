@@ -9,7 +9,7 @@
                                     Github version
 */
 global $bot_run_as;
-if ($bot_run_as["runIn"] != "page") {
+if (isset($bot_run_as["runIn"]) &&$bot_run_as["runIn"] != "page") {
     require_once("install/config.php");
     require_once($autoload);
     require_once("module/DingraiaPHP/app/serviceBan.php");
@@ -398,6 +398,9 @@ function op($openConversationId, $user, $token) {
         "x-acs-dingtalk-access-token" => $token,
         "Content-Type" => "application/json"
     );
+    if (is_array($user)) {
+        $user = implode(",", $user);
+    }
     $data = array(
         "openConversationId" => $openConversationId,
         "userIds" => $user,
@@ -426,7 +429,10 @@ function deop($openConversationId, $user, $token) {
     return $res;
 }  
 
-function create_group($token, $icon = '@lADPDfJ6dUX2_FPNAljNAlg', $template_id, $title = "新建群", $oid, $aid = null,$uids = null) {
+function create_group($token, $icon = '@lADPDfJ6dUX2_FPNAljNAlg', $template_id = null, $title = "新建群", $oid = null, $aid = null,$uids = null) {
+    if ($uids == null || $template_id == null) {
+        return false;
+    }
     $headers = array(
         "Content-Type" => "application/json"
     );
@@ -464,80 +470,81 @@ function get_downloadfile($token,$dc,$rc) {
 function requests_download_file($url, $saveDir, $method = 'GET', $data = null, $header = [], $timeout = 180, $filename = null) {
     $ch = curl_init();
 
-    if (strtoupper($method) == "POST") {
-        curl_setopt($ch, CURLOPT_POST, true);
-        if (is_array($data)) {
-            if ($header["Content-Type"] == 'application/json') {
-                $data = json_encode($data);
-            }
-            curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+    switch (strtoupper($method)) {
+        case "POST":
+            curl_setopt($ch, CURLOPT_POST, true);
+            break;
+        case "PUT":
+            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "PUT");
+            break;
+        default:
+            curl_setopt($ch, CURLOPT_HTTPGET, true);
+    }
+
+    if ($data && in_array(strtoupper($method), ['POST', 'PUT'])) {
+        if (isset($header["Content-Type"]) && $header["Content-Type"] == 'application/json') {
+            $data = json_encode($data);
         }
-    } elseif (strtoupper($method) === "PUT") {
-        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "PUT");
-        if ($data) {
-            if ($header["Content-Type"] == 'application/json') {
-                $data = json_encode($data);
-            }
-            curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
-        }
-    } else {
-        curl_setopt($ch, CURLOPT_HTTPGET, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
     }
 
     curl_setopt($ch, CURLOPT_URL, $url);
-    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
-    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, FALSE);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
+    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
 
-    if ($header != null) {
-        $header_arr = array();
+    if (!empty($header)) {
+        $header_arr = [];
         foreach ($header as $key => $value) {
             $header_arr[] = $key . ': ' . $value;
         }
         curl_setopt($ch, CURLOPT_HTTPHEADER, $header_arr);
     }
 
-    try {
-        $response = curl_exec($ch);
-        $status_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $response = curl_exec($ch);
+    $status_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 
-        if ($response === false) {
-            throw new Exception("cURL error: " . curl_error($ch));
-        }
-
+    if ($response === false) {
+        $error_msg = curl_error($ch);
         curl_close($ch);
-
-        if ($status_code == 200) {
-            $url_parts = parse_url($url);
-            $path_parts = pathinfo($url_parts['path']);
-            if ($filename == null) {
-                $filename = $path_parts['basename'];
-            }
-
-            $savePath = $saveDir . '/' . $filename;
-            file_put_contents($savePath, $response);
-
-            return array(
-                'code' => $status_code,
-                'message' => '文件下载成功',
-                'saved_file' => $savePath
-            );
-        } else {
-            return array(
-                'code' => $status_code,
-                'body' => $response
-            );
-        }
-    } catch (Exception $e) {
-        curl_close($ch);
-        return array(
+        return [
             'code' => 500,
-            'body' => $e->getMessage()
-        );
+            'body' => "cURL error: " . $error_msg
+        ];
     }
-}
 
+    curl_close($ch);
+
+    if ($status_code == 200) {
+        $url_parts = parse_url($url);
+        $path_parts = pathinfo($url_parts['path']);
+        if ($filename === null) {
+            $filename = $path_parts['basename'];
+        }
+
+        $savePath = rtrim($saveDir, '/') . '/' . $filename;
+
+        if (file_put_contents($savePath, $response) === false) {
+            return [
+                'code' => 500,
+                'body' => '文件保存失败'
+            ];
+        }
+
+        return [
+            'code' => $status_code,
+            'message' => '文件下载成功',
+            'saved_file' => $savePath
+        ];
+    }
+
+    return [
+        'code' => $status_code,
+        'body' => $response
+    ];
+}
 function group_info($token, $groupid) {
     $headers = array(
         "Content-Type" => "application/json"
@@ -690,6 +697,81 @@ function send_interactiveCards($token, $cardTemplateId, $openConversationId, $ro
     return $res;
 }
 
+function create_AI_interactiveCards($token, $cardData, $outTrackId = null, $cardTemplateId = "8f250f96-da0f-4c9f-8302-740fa0ced1f5.schema", $cardOptions = ["imGroupOpenSpaceModel" => ["supportForward" => false]]) {
+    global $bot_run_as;
+    if ($outTrackId === null) {
+        $outTrackId = uuid() . "-" . uuid();
+    }
+    
+    $headers = array(
+        "Content-Type" => "application/json",
+        "x-acs-dingtalk-access-token" => $token
+    );
+    
+    $data = array(
+        "cardData"=>$cardData,
+        "cardTemplateId"=>$cardTemplateId,
+        "outTrackId"=>$outTrackId,
+        "userIdType"=>1
+    );
+    foreach ($cardOptions as $k => $v) {
+        $data[$k] = $v;
+    }
+    
+    $res = requests("POST", "https://api.dingtalk.com/v1.0/card/instances", $data, $headers, 20)["body"];
+    $res = json_decode($res, true);
+    
+    return [$res, $outTrackId];
+}
+
+function deliver_AI_interactiveCards($token, $outTrackId, $openSpaceId, $cardOptions = []) {
+    global $bot_run_as;
+    $headers = array(
+        "Content-Type" => "application/json",
+        "x-acs-dingtalk-access-token" => $token
+    );
+    
+    $data = array(
+        "outTrackId"=>$outTrackId,
+        "openSpaceId"=>$openSpaceId
+    );
+    foreach ($cardOptions as $k => $v) {
+        $data[$k] = $v;
+    }
+    
+    $res = requests("POST", "https://api.dingtalk.com/v1.0/card/instances/deliver", $data, $headers, 20)["body"];
+    $res = json_decode($res, true);
+    
+    return [$res, $outTrackId];
+}
+
+function streaming_AI_interactiveCards($token, $outTrackId, $key, $content, $guid = null, $isFull = true, $isFinalize = false, $isError = false) {
+    global $bot_run_as;
+    if ($guid === null) {
+        $guid = time()."_".uuid();
+    }
+    
+    $headers = array(
+        "Content-Type" => "application/json",
+        "x-acs-dingtalk-access-token" => $token
+    );
+    
+    $data = array(
+        "outTrackId"=>$outTrackId,
+        "key"=>$key,
+        "content"=>$content,
+        "guid"=>$guid,
+        "isFull"=>$isFull,
+        "isFinalize"=>$isFinalize,
+        "isError"=>$isError
+    );
+    
+    $res = requests("PUT", "https://api.dingtalk.com/v1.0/card/streaming", $data, $headers, 20)["body"];
+    $res = json_decode($res, true);
+    
+    return [$res, $outTrackId];
+}
+
 function update_interactiveCards($token,$cardid, $cardData) {
     $headers = array(
         "Content-Type" => "application/json",
@@ -709,7 +791,6 @@ function update_interactiveCards($token,$cardid, $cardData) {
 
 function requests($method, $url, $data = null, $header = [], $timeout = 20) {
     $ch = curl_init();
-
     if (strtoupper($method) == "POST") {
         curl_setopt($ch, CURLOPT_POST, true);
         if (is_array($data)) {
@@ -720,7 +801,6 @@ function requests($method, $url, $data = null, $header = [], $timeout = 20) {
         }
     }  elseif (strtoupper($method) === "PUT") {
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "PUT");
-        // 设置PUT数据
         if ($data) {
             if ($header["Content-Type"] == 'application/json') {
                 $data = json_encode($data);
@@ -751,7 +831,8 @@ function requests($method, $url, $data = null, $header = [], $timeout = 20) {
         $status_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 
         if ($response === false) {
-            throw new Exception("cURL error: " . curl_error($ch));
+            //throw new Exception("cURL error: " . curl_error($ch));
+            return(curl_error($ch));
         }
 
         curl_close($ch);
@@ -767,6 +848,18 @@ function requests($method, $url, $data = null, $header = [], $timeout = 20) {
             'body' => $e->getMessage()
         );
     }
+}
+
+function DingraiaPHPCheckWarningWord($c) {
+    global $bot_run_as;
+    $ww = [""];
+    foreach ($ww as $w) {
+        if (strstr($c, $w)) {
+            $lid = tool_log(2, ["content"=>$c, "bot"=>$bot_run_as]);
+            return "检测到违禁词。请查看日志id：{$lid}";
+        }
+    }
+    return $c;
 }
 
 function get_message($lx, $content, $Atuser, $title, $pic, $link, $x){
@@ -791,6 +884,7 @@ function get_message($lx, $content, $Atuser, $title, $pic, $link, $x){
     if ($conversationType != "2") {
         $Atuser = 0;
     }
+    $isAtAll = false;
     if ($Atuser != 0) {
         if ($Atuser == 1) {
             $isAtAll = true;
@@ -805,6 +899,8 @@ function get_message($lx, $content, $Atuser, $title, $pic, $link, $x){
 
     if (is_array($content)) {
         $content = json_encode($content,JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE);
+    } else {
+        $content = DingraiaPHPCheckWarningWord($content);
     }
     if ($lx == "text"){
         $message = array(
@@ -926,7 +1022,6 @@ function get_message($lx, $content, $Atuser, $title, $pic, $link, $x){
 }
 
 function convertSpecialChars($string) {
-    // 将换行符转换为 \n
     $string = str_replace("\n", '\n', $string);
     $string = str_replace("\r", '\r', $string);
     return $string;
@@ -940,8 +1035,10 @@ function send($lx, $content, $url, $Atuser, $title = "title", $pic = "", $link =
         return false;
     }
     $bot_run_as["logger"]["class"]->info("<- ".convertSpecialChars($content));
-    if ($bot_run_as["sendWebhookSecret"] !== 0) {
+    if (isset($bot_run_as["sendWebhookSecret"]) && $bot_run_as["sendWebhookSecret"] !== 0) {
         $secret = $bot_run_as["sendWebhookSecret"];
+    } else {
+        $secret = "";
     }
     // 生成时间戳和加签
     date_default_timezone_set('Asia/Shanghai');
@@ -1008,23 +1105,27 @@ function get_groupMessages($lx, $robotCode, $conversationId, $content, $b, $c, $
             "robotCode" => $robotCode,
             "openConversationId" => $conversationId
         );
+    } elseif ($lx == "video") {
+        $msgParam = json_encode(["duration"=>$c, "videoMediaId"=>$content, "videoType"=>"mp4", "picMediaId"=>$b]);
+        $message = array(
+            "msgParam" => $msgParam,
+            "msgKey" => "sampleVideo",
+            "robotCode" => $robotCode,
+            "openConversationId" => $conversationId
+        );
     }
     
     return $message;
 }
 
 function send_groupMessages($lx, $url, $a, $b=0, $c=0, $d=0) {
+    global $bot_run_as;
     global $globalmessage;
     global $robotCode;
     global $conversationId;
     global $chatbotCorpId;
-    global $bot_run_as;
     
-    /*
-    if ($bot_run_as[$groupmessage_send_to_user]) {
-        $res = requests("POST",'',$data,$header);
-    }
-    */
+    $chatbotCorpId = $chatbotCorpId ?? $bot_run_as["data"]["chatbotCorpId"];
     if ($a == ""){
         return false;
     }
@@ -1038,6 +1139,10 @@ function send_groupMessages($lx, $url, $a, $b=0, $c=0, $d=0) {
     }
     if ($lx == "file") {
         $a = upload_to_dingtalk("file", $a, $token);
+    }
+    if ($lx == "video") {
+        $b = upload_to_dingtalk("image", $b, $token);
+        $a = upload_to_dingtalk("video", $a, $token);
     }
     $message = get_groupMessages($lx, $robotCode, $conversationId, $a, $b, $c, $d);
     if (strstr($lx, 'text_touser') and $c != null) {
@@ -1087,7 +1192,7 @@ function DingraiaPHPPostNormalChat(array $message, string $webhook, array $heade
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, $webhook);
     curl_setopt($ch, CURLOPT_POST, 1);
-    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
+    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
     curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
     curl_setopt($ch, CURLOPT_POSTFIELDS, $data_string);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -1179,9 +1284,9 @@ function sampleImageMsg($content, $url, $timeout = 0){
 }
 
 function sampleAudio($content, $url, $b, $timeout = 0){
-    global $restaffid;
+    global $restaffid, $bot_run_as;
     if (filesize($content) > 2000000) {
-        send_message("文件太大惹...冰晶不会上传这个文件！",$url, $restaffid);
+        send_message($bot_run_as["lang"]["upload_file_big"],$url, $restaffid);
         return false;
     } else {
         if ($b == -1) {
@@ -1194,23 +1299,42 @@ function sampleAudio($content, $url, $b, $timeout = 0){
 }
 
 function sampleFile($content, $url, $b, $c, $timeout = 0){
-    global $restaffid;
+    global $restaffid, $bot_run_as;
     if (filesize($content) > 20000000) {
-        send_message("文件太大惹...冰晶不会上传这个文件！",$url, $restaffid);
+        send_message($bot_run_as["lang"]["upload_file_big"],$url, $restaffid);
         return false;
     } else {
         if (in_array($c, ["dco","docx","xls","xlsx","ppt","pptx","pdf","zip","rar"])) {
             send_groupMessages('file', $url, $content, $b, $c);
             return true;
         } else {
-            send_message("文件不对劲...冰晶不会上传这个文件！\nextension error",$url, $restaffid);
+            send_message($bot_run_as["lang"]["upload_file_bad_extension"],$url, $restaffid);
+        }
+    }
+    return false;
+}
+
+
+function sampleVideo($content, $url, $b, $c = "mp4", $timeout = 0){
+    //视频 webhook 封面 mp4 
+    global $restaffid, $bot_run_as;
+    if (filesize($content) > 20000000) {
+        send_message($bot_run_as["lang"]["upload_file_big"],$url, $restaffid);
+        return false;
+    } else {
+        if (in_array($c, ["mp4"])) {
+            $c = intval(getMp4DurationInMilliseconds($content)) / 1000;
+            send_groupMessages('video', $url, $content, $b, $c);
+            return true;
+        } else {
+            send_message($bot_run_as["lang"]["upload_file_bad_extension"],$url, $restaffid);
         }
     }
     return false;
 }
 
 function send_message($content, $url, $Atuser = 0){
-    return(send('text', $content.$r, $url, $Atuser));
+    return(send('text', $content.null, $url, $Atuser));
 }
 
 function send_test($content, $url, $Atuser = 0){
@@ -1228,7 +1352,7 @@ function send_link($content, $url, $Atuser = 0, $title = "title", $pic = "", $li
     send('lk', $content, $url, $Atuser, $title, $pic, $link);
 }
 
-function send_actionCardA($content, $url, $Atuser = 0, $title = "title", $singleTitle, $singleURL, $x = false) {
+function send_actionCardA($content, $url, $Atuser = 0, $title = "title", $singleTitle = null, $singleURL = null, $x = false) {
     if ($Atuser != 0) {
         return false;
     }
@@ -1268,8 +1392,7 @@ function parseCustomTimeFormat($timeString) {
     return $totalSeconds;
 }
 
-function formatTimeFromSeconds($seconds): string
-{
+function formatTimeFromSeconds($seconds): string{
     $timeUnits = array('y' => 31536000, 'm' => 2592000, 'd' => 86400, 'h' => 3600, 'i' => 60, 's' => 1);
     $formattedTime = "";
     
@@ -1404,7 +1527,7 @@ function app_json_file_add_list($fp, $t) {
     }
 }
 
-function DingraiaPHPAddNormalResponse($key = null,$t,$newArray = false) {
+function DingraiaPHPAddNormalResponse($key = null,$t = null,$newArray = false) {
     $r = json_decode(file_get_contents("data/bot/app/response.json"), true);
     if ($key == null) {
         $key = "emptyKey";
@@ -1439,6 +1562,7 @@ function isFileExists($filePath): bool
 
 function DingraiaPHPLogaChatGroupMessage($data,$r) {
     $cid = $data['body']["conversationId"];
+    $body['msgtype'] = isset($body['msgtype']) ?? "text";
     if ($body['msgtype'] == 'picture') {
         $r = useRobotcode2Corpid($data["body"]['robotCode']);
         $token = get_accessToken($r['AppKey'],$r['AppSecret']);
@@ -1458,8 +1582,7 @@ function DingraiaPHPLogaChatGroupMessage($data,$r) {
     write_to_file_json("data/bot/chatUseGroup.json",$r);
 }
 
-function DingraiaPHPLogChatGroup($data): bool
-{
+function DingraiaPHPLogChatGroup($data): bool {
     $data = $data[0];
     $webhookDie = time() + 3540;
     $t = time();
@@ -1591,7 +1714,7 @@ function check_send_lq($webhook): bool
     try {
         $filename = "data/send.json";
         $arr = read_file_to_array($filename);
-        if ($arr['sendwebhook'][$webhook]['minute_send'] >= 20) {
+        if (isset($arr['sendwebhook'][$webhook]) && $arr['sendwebhook'][$webhook]['minute_send'] >= 20) {
             if ($arr['sendwebhook'][$webhook]['send_lq'] > time()) {
                 return false;
             } else {
@@ -1608,7 +1731,6 @@ function check_send_lq($webhook): bool
         return false;
     }
 }
-
 
 function filterByStaffId($array): array
 {
@@ -1644,9 +1766,6 @@ function get_dingtalk_card_callback($headers, $body) {
         $c['lxy_mode'] = 'card_callback';
         $c['chatbotCorpId'] = $body['corpId'];
         $c[] = $c;
-        $f = read_file_to_array("data/bot/get_count.json");
-        $f['cardcallback']++;
-        write_to_file_json("data/bot/get_count.json",$f);
         return $c; 
     } else {
         return false;
@@ -1680,9 +1799,6 @@ function get_dingraia_master($headers, $body) {
         }
         if (check_dingraiaAuth($corpId, $body['timeStamp'], $body['dingraiaAuth'])) {
             $c[] = $body;
-            $f = read_file_to_array("data/bot/get_count.json");
-            $f['_py']++;
-            write_to_file_json("data/bot/get_count.json",$f);
             return $c;
         } else {
             return false;
@@ -1690,7 +1806,7 @@ function get_dingraia_master($headers, $body) {
     }
 }
 
-function request_to_slave($corpId = null, $data) {
+function request_to_slave($corpId = null, $data = null) {
     if ($corpId == null) {
         $corpId = uuid();
     }
@@ -1709,9 +1825,26 @@ function request_to_slave($corpId = null, $data) {
     return $res;
 }
 
+function get_dingtalk_callback($timestamp,$nonce,$body) {
+    $token = '1';
+    $encodingAesKey = '2';
+    $suiteKey = '3';
+    
+    $crypto = new Crypto(
+        $token,
+        $encodingAesKey,
+        $suiteKey
+    );
+    $ret = $crypto->encryptMsg('success', $timestamp, $nonce);
+    header("Content-Type: application/json");
+    print_r($ret);
+    $ret = $crypto->decryptMsg($_GET['msg_signature'], $timestamp, $nonce, '4');
+    echo $ret;
+    return json_decode($ret, true);
+}
+
 function get_dingtalk_post() {
     global $bot_run_as;
-    
     $conf = $bot_run_as['config'] = read_file_to_array('config/bot.json');
     $ymd = date('Y-m-d');
     $interview = false;
@@ -1852,24 +1985,6 @@ function get_dingtalk_post() {
         return $r;
     }
     
-    $ts = $headers['Timestamp'] ?? null;
-    $si = $headers['Sign'] ?? null;
-    $sec = read_file_to_array('config/cropid.json');
-    if (isset($sec[$body['chatbotCorpId']])){
-        $secret = $sec[$body['chatbotCorpId']]['AppSecret'];
-        $trueSign = base64_encode($signData = hash_hmac('sha256', $ts . "\n" . $secret, $secret, true));
-        if ($si != $trueSign) {
-            $interview = true;
-            return ["code"=>401, "message"=>"不是合法的来源"];
-        }
-    } else {
-        $interview = true;
-        $secret = null;
-        return ["code"=>401, "message"=>"不是合法的来源"];
-    }
-    
-    $bot_run_as['config']['notSendDefault'] = 1;
-    
     if (isset($body['text']) || isset($body['content'])) {
         $body['text']['content'] = ltrim($body['text']['content']);
         $logData[] = [
@@ -1901,15 +2016,6 @@ function get_dingtalk_post() {
         if (isset($body['msgtype']) && $body['msgtype'] == 'file') {
             $logData[count($logData) - 1]['body']['msgtype'] = 'file';
             $logData[count($logData) - 1]['body']['content'] = $body['content'];
-        }
-        if ($viste != true) {
-            log_get_message($logData);
-            $f = read_file_to_array("data/bot/get_count.json");
-            $f['message']++;
-            write_to_file_json("data/bot/get_count.json",$f);
-        } else {
-            $logData = ['v'=>true];
-            $bot_run_as['viste'] = true;
         }
         DingraiaPHPLogChatGroup($logData);
         $bot_run_as["chat_mode"] = "message";
@@ -1962,6 +2068,15 @@ function tool_log($level, $message) {
 
 
 function getOGGDurationInMilliseconds($oggFilePath) {
+    global $bot_run_as;
+    $getID3 = new getID3();
+    $fileInfo = $getID3->analyze($oggFilePath);
+    $durationMilliseconds = $fileInfo['playtime_seconds'] * 1000;
+    app_json_file_add_list($bot_run_as["RUN_LOG_FILE"], ["time"=>microtime(true),"type"=>"getOGGDurationInMilliseconds","oggFilePath"=>$oggFilePath,"durationMilliseconds"=>$durationMilliseconds]);
+    return $durationMilliseconds;
+}
+
+function getMp4DurationInMilliseconds($oggFilePath) {
     global $bot_run_as;
     $getID3 = new getID3();
     $fileInfo = $getID3->analyze($oggFilePath);
@@ -2072,9 +2187,12 @@ function DingraiaPHPResponseExit($errCode, $message = "Unkown Error", $m = null,
             $m = "Bad Request";
         } elseif ($errCode == 405) {
             $m = "Method Not Allowed";
+        } elseif ($errCode == 401) {
+            $m = "Unauthorized";
         }
     }
     http_response_code($errCode);
+    $_GET["format"] = isset($_GET["format"])? $_GET["format"] : "html";
     if ($_GET['format'] == "json" || $json) {
         header('Content-Type:application/json; charset=utf-8');
         $exitMes = json_encode(["success"=>false, "code"=>$errCode,"message"=>$message],JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE);

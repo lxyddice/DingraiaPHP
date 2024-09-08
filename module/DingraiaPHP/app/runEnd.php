@@ -29,7 +29,7 @@ function DingraiaPHPRunEnd($hideLoadPluginInfo, $hideLoadPluginInfo_B) {
 
     $response = read_file_to_array("data/bot/app/response.json");
 
-    if ($bot_run_as["responseMustType"] == 1) {
+    if (isset($bot_run_as["responseMustType"]) && $bot_run_as["responseMustType"] == 1) {
         $response["type"] = $bot_run_as["responseMustTypeText"];
     }
 
@@ -91,7 +91,7 @@ function outputResponse($responseType, $content) {
         echo $content;
     }
 }
-
-// 调用 DingraiaPHPRunEnd 函数
+$hideLoadPluginInfo = isset($hideLoadPluginInfo) ?? false;
+$hideLoadPluginInfo_B = isset($hideLoadPluginInfo_B) ?? false;
 DingraiaPHPRunEnd($hideLoadPluginInfo, $hideLoadPluginInfo_B);
 ?>

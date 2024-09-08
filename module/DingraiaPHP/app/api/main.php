@@ -1,6 +1,7 @@
 <?php
 if ($bot_run_as) {
-    if ($_GET['action'] == "api") {
+    if (isset($_GET['action']) && $_GET['action'] == "api") {
+        $_GET['type'] = $_GET['type']?? "";
         $bot_run_as["useDefaultDisplayPage"] = false;
         $hideLoadPluginInfo = 1;
         header('Content-Type: application/json');
@@ -31,7 +32,7 @@ if ($bot_run_as) {
         if ($_GET["type"] == "getIp") {
             if (DIngraiaPHPGetIp()) {
                 $apiResponse["code"] = 0;
-                $apiResponse["result"]["ip"] = DIngraiaPHPGetIp();
+                $apiResponse["result"] = DIngraiaPHPGetIp();
             } else {
                 $apiResponse["success"] = false;
                 $apiResponse["code"] = -8;
@@ -55,7 +56,7 @@ if ($bot_run_as) {
             }
         }
         
-        if ($_GET['type'] == "old.searchUser") {
+        if ($_GET['type'] == "searchUser") {
             $n = trim($_GET['name']);
             if ($n == "") {
                 $apiResponse["success"] = false;
@@ -122,7 +123,6 @@ if ($bot_run_as) {
             $apiResponse["code"] = 0;
             $apiResponse["result"] = $jsonData;
         }
-        //TODO
         if ($_GET['type'] == "tools.uid2name") {
             $directory = 'data/bot/user/';
             $files = scandir($directory);
@@ -145,7 +145,14 @@ if ($bot_run_as) {
             $apiResponse["result"] = $resultData;
         }
         require_once(__DIR__."/htmlAdmin.php");
+        require_once(__DIR__."/lxyddice.php");
         require_once(__DIR__."/other.php");
+        require_once(__DIR__."/githubOAuth2.php");
+        require_once(__DIR__."/htmlPage.php");
+        require_once(__DIR__."/lxyCurlPHP.php");
+        require_once(__DIR__."/lxyAPP.php");
+        require_once(__DIR__."/lxyTi.php");
+        require_once(__DIR__."/lxyCraft.php");
         /*需验证签名的API*/
         if ($_GET['type'] == "oauth2Get") {
             if (isset($_GET['state']) && isset($_GET['DingraiaPHPState']) && isset($_GET['timeStamp']) && isset($_GET['sign'])) {
@@ -249,7 +256,7 @@ if ($bot_run_as) {
             return $masked_string;
         }
         /*需传入密钥的*/
-        $apiKey = "key_of_api_";
+        $apiKey = "lxyddice233_14514";
         if ($_GET["type"] == "getTiGroupBanList") {
             if ($_GET["key"] == $apiKey) {
                 $apiResponse["code"] = 0;
@@ -359,13 +366,11 @@ if ($bot_run_as) {
             $apiResponse["apiPath"] = $_GET["type"];
         }
         if (!$bot_run_as["useDefaultDisplayPage"]) {
-            if (!isset($hideApiEcho) && $hideApiEcho != 1) {
-                $r = write_to_file_json("data/bot/app/response.json", ["type"=>"no",]);
-                $bot_run_as["responseMustTypeText"] = "no";
-                $bot_run_as["responseMustType"] = 1;
-                echo(json_encode($apiResponse, JSON_UNESCAPED_UNICODE));
-                app_json_file_add_list($bot_run_as["RUN_LOG_FILE"], ["time"=>microtime(true),"type"=>"apiResponse","result"=>$apiResponse]);
-            }
+            $r = write_to_file_json("data/bot/app/response.json", ["type"=>"no"]);
+            $bot_run_as["responseMustTypeText"] = "no";
+            $bot_run_as["responseMustType"] = 1;
+            echo(json_encode($apiResponse, JSON_UNESCAPED_UNICODE));
+            app_json_file_add_list($bot_run_as["RUN_LOG_FILE"], ["time"=>microtime(true),"type"=>"apiResponse","result"=>$apiResponse]);
         }
     }
 }

@@ -44,32 +44,32 @@ if ($bot_run_as) {
             } else {
                 $_SESSION["DingraiaPHPHtmlAdmin_loginUuid"] = "admin_".$urn;
             }
-            $_SESSION["DingraiaPHPHtmlAdmin_logoutTime"] = time() + 600;
             unset($f[$_GET["sign"]]);
             $sessionUuid = uuid();
+            $_SESSION["DingraiaPHPHtmlAdmin_logoutTime"] = time() + 1200;
             $_SESSION["DingraiaPHPHtmlAdmin_sessionUuid"] = $sessionUuid;
             $headers = getallheaders();
-            $sessionKey[$sessionUuid] = ["UA"=>$headers["User-Agent"],"IP"=>$headers["Cf-Connecting-Ip"]];
+            $sessionKey[$sessionUuid] = ["UA"=>$headers["User-Agent"],"IP"=>DingraiaPHPGetIp()];
             write_to_file_json("data/bot/app/htmlAdminSession.json", $sessionKey);
             write_to_file_json("data/bot/app/htmlAdminLogin.json", $f);
             if (isset($_COOKIE["return"])) {
                 $page = $_COOKIE["return"];
             } else {
-                $page = $_GET["page"];
+                $page = $_GET["page"] ?? "chat";
             }
-            $_COOKIE["return"] = null;
+            setcookie("return", null, time()-1);
             header("Location: ?action=admin&page=$page");
         } else {
             header("Location: ?action=admin&returnTo=".urlencode("http://".$_SERVER["HTTP_HOST"].parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH)."?action=admin&page=index"));
         }
     } else {
-        if ($_GET["login"] == "oauth2") {
+        if (isset($_GET["login"]) && $_GET["login"] == "oauth2") {
             session_start();
             $lid = $_SESSION['lid'] = uuid();
             $requestUri = $_SERVER['REQUEST_URI'];
             $path = parse_url($requestUri, PHP_URL_PATH);
             header("Location: {$bot_run_as['conf']['host_url']}?client_id={$bot_run_as['config']['htmlAdmin']['appId']}&state={$lid}&redirect_uri=".urlencode("http://".$_SERVER["HTTP_HOST"].$path."?action=admin&login=dt_verify"));
-        } elseif ($_GET["login"] == "dt_verify") {
+        } elseif (isset($_GET["login"]) && $_GET["login"] == "dt_verify") {
             if (isset($_GET['DingraiaPHPState']) && isset($_GET['state'])) {
                 $t = time();
                 $sign = hash('sha256', $_GET['DingraiaPHPState'].$_GET['state'].$t.$bot_run_as["config"]["dingraiaAuthKey"]);

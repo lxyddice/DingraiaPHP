@@ -11,7 +11,7 @@ if ($rgkNo != 1) {
 
 function DingraiaPHPHtmlAdmin_verifyLogin() {
     $sessionKey = read_file_to_array("data/bot/app/htmlAdminSession.json");
-    if ($_SESSION["DingraiaPHPHtmlAdmin_logoutTime"] > time() && isset($sessionKey[$_SESSION["DingraiaPHPHtmlAdmin_sessionUuid"]])) {
+    if (isset($_SESSION["DingraiaPHPHtmlAdmin_logoutTime"]) && $_SESSION["DingraiaPHPHtmlAdmin_logoutTime"] > time() && isset($sessionKey[$_SESSION["DingraiaPHPHtmlAdmin_sessionUuid"]])) {
         return true;
     }
     return false;
