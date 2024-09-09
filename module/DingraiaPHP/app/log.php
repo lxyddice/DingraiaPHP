@@ -4,6 +4,19 @@ function DingraiaPHPLogDisposeMainFn() {
     $ymd = date('Y-m-d');
     
     // 处理 log
+    if (!isset($r['log'])) {
+        $r['log'] = ['last_dispose_time' => ''];
+    }
+    if (!isset($r['callback'])) {
+        $r['callback'] = ['last_dispose_time' => ''];
+    }
+    if (!isset($r['send'])) {
+        $r['send'] = ['last_dispose_time' => ''];
+    }
+    if (!isset($r['group_send'])) {
+        $r['group_send'] = ['last_dispose_time' => ''];
+    }
+    
     if ($ymd != $r['log']['last_dispose_time'] && file_exists("data/get.json")) {
         copy("data/get.json", "data/bot/log/get/{$ymd}.json");
         write_to_file_json('data/get.json', []);

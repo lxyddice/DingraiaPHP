@@ -1,6 +1,6 @@
 {
-	"dingaef1b9ab22f8d90124f2f5cc6abecb85": {
-        "AppKey": "dingffuznrldegdtaslb",
-        "AppSecret": "dJDPMhxthMsdeTqL4Dxnc70mXhzGmn8owY-IhyaOTgXSsoQb73w2xpa9Nq3VFGYe"
-	}
+        "yourCorpId": {
+                "AppKey": "yourAppKey",
+                "AppSecret": "yourAppSecret"
+        }
 }
