@@ -1,4 +1,4 @@
-此文档最后更新于24/09/09 `v240909.4-Alpha`
+此文档最后更新于24/09/09 `v240909.5-Alpha`
 
 [破坏性更新](/doc/破坏性更新.md)
 
@@ -22,7 +22,7 @@
 - 使用方式
     - 网页服务端
 - 群聊功能
-    - 发送消息
+    - 发送消息，设置违禁词
         - 文字
         - Markdown
         - ActionCard
@@ -78,13 +78,13 @@
 
 # 演示
 
-## 虚拟主机版 固定于v240814.1-Alpha
+## 虚拟主机版 固定于v240909.5-Alpha
 
-[首页](https://us1-cf.240702.xyz/bot/)
+[首页](https://us1-cf.240702.xyz/DingraiaPHP/)
 
-[API端点](https://us1-cf.240702.xyz/bot/?action=api&type=getIp)
+[API端点](https://us1-cf.240702.xyz/DingraiaPHP/?action=api&type=getIp)
 
-[normalDisplay](https://us1-cf.240702.xyz/bot/?action=p&page=index)
+[normalDisplay](https://us1-cf.240702.xyz/DingraiaPHP/?action=p&page=index)
 
 ## 服务器版 开发版，开发环境与生产环境结合
 
