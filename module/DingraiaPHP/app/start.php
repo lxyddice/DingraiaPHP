@@ -30,6 +30,9 @@ function app_start() {
     write_to_file_json("data/bot/app/response.json", []);
 
     $bot_run_as["schedule"] = "start";
+
+    $bot_run_as["runIn"] = "DingraiaPHP";
+    
     app_json_file_add_list($bot_run_as["RUN_LOG_FILE"],["ok"=>true]);
 
 
