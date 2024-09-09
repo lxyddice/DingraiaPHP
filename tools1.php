@@ -9,7 +9,7 @@
                                     Github version
 */
 global $bot_run_as;
-if (isset($bot_run_as["runIn"]) &&$bot_run_as["runIn"] != "page") {
+if (isset($bot_run_as["runIn"]) && $bot_run_as["runIn"] != "page") {
     require_once("install/config.php");
     require_once($autoload);
     require_once("module/DingraiaPHP/app/serviceBan.php");
@@ -91,8 +91,7 @@ function DingraiaPHPCreateShortUrl($url, $onlyOnce = true, $idL = 8) {
     return $id;
 }
 
-function DingraiaPHPGetIp(): array
-{
+function DingraiaPHPGetIp(): array {
     static $realip;
     if (isset($_SERVER)){
         if (isset($_SERVER["HTTP_CF_PSEUDO_IPV4"])){
@@ -123,13 +122,10 @@ function updateMoney($uid, $changeAmount): bool
     foreach ($user_files as $file) {
         $user_data = json_decode(file_get_contents($file), true);
         if ($user_data['uid'] == $uid) {
-            // 更新用户金钱
             if (!isset($user_data['money'])) {
                 $user_data['money'] = 0;
             }
             $user_data['money'] += $changeAmount;
-            
-            // 保存更新后的数据
             file_put_contents($file, json_encode($user_data));
             return true;
         }
@@ -191,14 +187,13 @@ function has_permission($uid, $permission): bool
     return false;
 }
 
-function permission_check($permission, $uid): bool
-{
+function permission_check($permission, $uid): bool{    
     $userPermissions = read_file_to_array("config/permission/user.json");
     $groupPermissions = read_file_to_array("config/permission/group.json");
     $permissions = $userPermissions[$uid] ?? [];
     
-    foreach ($groupPermissions as $group) {
-        if (in_array($uid, $group['user'])) {
+    foreach ($groupPermissions as $groupName => $group) {
+        if (isset($group['user']) && in_array($uid, $group['user'])) {
             $permissions = array_merge($permissions, $group['permission']);
         }
     }
@@ -246,6 +241,27 @@ function formatBytes($bytes, $precision = 2): string
     return round($bytes, $precision) . ' ' . $units[$pow];
 }
 
+function requestsDingtalkApi($type, $url, $body, $headers, $timeout = 10) {
+    if ($url[0] == 0) {
+        $u = "https://api.dingtalk.com";
+    } else {
+        $u = "https://oapi.dingtalk.com";
+    }
+    $res = requests($type, $u.$url[1], $body, $headers, $timeout);
+    if (!file_exists("data/bot/app/count.json")) {
+        write_to_file_json("data/bot/app/count.json", ["count"=>0]);
+    }
+    $f = read_file_to_array("data/bot/app/count.json");
+    $ym = date("Ym");
+    if (isset($f['dingtalkApiCount'][$ym])) {
+        $f['dingtalkApiCount'][$ym]++;
+    } else {
+        $f['dingtalkApiCount'][$ym] = 1;
+    }
+    write_to_file_json("data/bot/app/count.json", $f);
+    return $res;
+}
+
 function userinfo($userId, $token) {
     $headers = array(
         "Content-Type" => "application/json"
@@ -255,7 +271,7 @@ function userinfo($userId, $token) {
     	"userid"=>$userId
     );
     
-    $res = requests("POST", "https://oapi.dingtalk.com/topapi/v2/user/get?access_token=$token", $data, $headers, 20)["body"];
+    $res = requestsDingtalkApi("POST", [1,"/topapi/v2/user/get?access_token=$token"], $data, $headers, 20)["body"];
     $res = json_decode($res, true);
     
     return $res;
@@ -270,7 +286,7 @@ function getbyunionid($userId, $token) {
     	"userid"=>$userId
     );
     
-    $res = requests("POST", "https://oapi.dingtalk.com/topapi/user/getbyunionid?access_token=$token", $data, $headers, 20)["body"];
+    $res = requestsDingtalkApi("POST", [1,"/topapi/user/getbyunionid?access_token=$token"], $data, $headers, 20)["body"];
     $res = json_decode($res, true);
     
     if ($res['code'] == 60121) {
@@ -290,7 +306,7 @@ function add_member($token, $c, $u) {
     	"open_conversation_id"=>$c
     );
     
-    $res = requests("POST", "https://oapi.dingtalk.com/topapi/im/chat/scenegroup/member/add?access_token=$token", $data, $headers, 20)["body"];
+    $res = requestsDingtalkApi("POST", [1,"/topapi/chat/add_member?access_token=$token"], $data, $headers, 20)["body"];
     
     $res = json_decode($res, true);
     return $res;
@@ -307,7 +323,7 @@ function translate($text, $token, $from="zh", $to="ja") {
     	"target_language"=>$to
     );
     
-    $res = requests("POST", "https://oapi.dingtalk.com/topapi/ai/mt/translate?access_token=$token", $data, $headers, 20)["body"];
+    $res = requestsDingtalkApi("POST", [1,"/topapi/ai/mt/translate?access_token=$token"], $data, $headers, 20)["body"];
     $res = json_decode($res, true);
 
     return $res;
@@ -326,7 +342,7 @@ function mute_user($mutetime, $openConversationId, $user, $token) {
         "muteStatus" => 1
     );
     
-    $res = requests("POST", "https://api.dingtalk.com/v1.0/im/sceneGroups/muteMembers/set", $data, $headers, 20)["body"];
+    $res = requestsDingtalkApi("POST", [0,"/v1.0/im/sceneGroups/muteMembers/set"], $data, $headers, 20)["body"];
     $res = json_decode($res, true);
 
     return $res;
@@ -345,13 +361,13 @@ function unmute_user($openConversationId, $user, $token) {
         "muteStatus" => 0
     );
     
-    $res = requests("POST", "https://api.dingtalk.com/v1.0/im/sceneGroups/muteMembers/set", $data, $headers, 20)["body"];
+    $res = requestsDingtalkApi("POST", [0,"/v1.0/im/sceneGroups/muteMembers/set"], $data, $headers, 20)["body"];
     $res = json_decode($res, true);
 
     return $res;
 }  
 
-function get_accessToken($key, $secret) {
+function get_accessToken(string $key,string $secret) {
     $cacheFilePath = 'data/bot/token.json';
     if (file_exists($cacheFilePath)) {
         $cacheData = json_decode(file_get_contents($cacheFilePath), true);
@@ -359,7 +375,7 @@ function get_accessToken($key, $secret) {
             return $cacheData[$key]['token'];
         }
     }
-    $res = requests("POST", "https://api.dingtalk.com/v1.0/oauth2/accessToken", ["appKey" => $key, "appSecret" => $secret], ["Content-Type" => "application/json"])["body"];
+    $res = requestsDingtalkApi("POST", [0,"/v1.0/oauth2/accessToken"], ["appKey" => $key, "appSecret" => $secret], ["Content-Type" => "application/json"])["body"];
     $res = json_decode($res, true);
 
     if (isset($res['accessToken'])) {
@@ -387,7 +403,7 @@ function change_user_name($openConversationId, $userId, $groupNick, $token) {
         "groupNick" => $groupNick
     );
     
-    $res = requests("PUT", "https://api.dingtalk.com/v1.0/im/sceneGroups/members/groupNicks", $data, $headers, 20)["body"];
+    $res = requestsDingtalkApi("PUT", [0, "/v1.0/im/sceneGroups/members/groupNicks"], $data, $headers, 20)["body"];
     $res = json_decode($res, true);
 
     return $res;
@@ -398,16 +414,14 @@ function op($openConversationId, $user, $token) {
         "x-acs-dingtalk-access-token" => $token,
         "Content-Type" => "application/json"
     );
-    if (is_array($user)) {
-        $user = implode(",", $user);
-    }
+
     $data = array(
         "openConversationId" => $openConversationId,
         "userIds" => $user,
         "role" => 2
     );
     
-    $res = requests("PUT", "https://api.dingtalk.com/v1.0/im/sceneGroups/subAdmins", $data, $headers, 20)["body"];
+    $res = requestsDingtalkApi("PUT", [0, "/v1.0/im/sceneGroups/subAdmins"], $data, $headers, 20)["body"];
     return $res;
 }  
 
@@ -423,7 +437,7 @@ function deop($openConversationId, $user, $token) {
         "role" => 3
     );
     
-    $res = requests("PUT", "https://api.dingtalk.com/v1.0/im/sceneGroups/subAdmins", $data, $headers, 20)["body"];
+    $res = requestsDingtalkApi("PUT", [0, "/v1.0/im/sceneGroups/subAdmins"], $data, $headers, 20)["body"];
     $res = json_decode($res, true);
 
     return $res;
@@ -444,7 +458,7 @@ function create_group($token, $icon = '@lADPDfJ6dUX2_FPNAljNAlg', $template_id =
     	"owner_user_id"=>$oid,
     );
     
-    $res = requests("POST", "https://oapi.dingtalk.com/topapi/im/chat/scenegroup/create?access_token=$token", $data, $headers, 20)["body"];
+    $res = requestsDingtalkApi("POST", [1,"/topapi/im/chat/scenegroup/create?access_token=$token"], $data, $headers, 20)["body"];
     $res = json_decode($res, true);
 
     return $res;
@@ -462,7 +476,7 @@ function get_downloadfile($token,$dc,$rc) {
 	"robotCode"=>$rc
     );
     
-    $res = requests("POST", "https://api.dingtalk.com/v1.0/robot/messageFiles/download", $data, $headers, 20)["body"];
+    $res = requestsDingtalkApi("POST", [0,"/v1.0/robot/messageFiles/download"], $data, $headers, 20)["body"];
     $res = json_decode($res, true);
     return $res;
 }
@@ -553,7 +567,7 @@ function group_info($token, $groupid) {
     $data = array(
     	"open_conversation_id"=>$groupid
     );
-    $res = requests("POST", "https://oapi.dingtalk.com/topapi/im/chat/scenegroup/get?access_token=$token", $data, $headers, 20)["body"];
+    $res = requestsDingtalkApi("POST", [1,"/topapi/im/chat/scenegroup/get?access_token=$token"], $data, $headers, 20)["body"];
     $res = json_decode($res, true);
 
     return $res;
@@ -568,7 +582,7 @@ function change_group_owner($token, $gid, $oid) {
     	"open_conversation_id"=>$gid,
     	"owner_user_id"=>$oid,
     );
-    $res = requests("POST", "https://oapi.dingtalk.com/topapi/im/chat/scenegroup/update?access_token=$token", $data, $headers, 20)["body"];
+    $res = requestsDingtalkApi("POST", [1,"/topapi/im/chat/scenegroup/update?access_token=$token"], $data, $headers, 20)["body"];
     $res = json_decode($res, true);
 
     return $res;
@@ -594,7 +608,7 @@ function group_add_member($token, $groupIds, $uids) {
                     "open_conversation_id" => $groupId
                 );
 
-                $res = requests("POST", "https://oapi.dingtalk.com/topapi/im/chat/scenegroup/member/add?access_token=$token", $data, $headers, 20)["body"];
+                $res = requestsDingtalkApi("POST", [1,"/topapi/im/chat/scenegroup/member/add?access_token=$token"], $data, $headers, 20)["body"];
                 $res = json_decode($res, true);
                 $results[] = $res;
             }
@@ -604,7 +618,7 @@ function group_add_member($token, $groupIds, $uids) {
                 "open_conversation_id" => $groupId
             );
 
-            $res = requests("POST", "https://oapi.dingtalk.com/topapi/im/chat/scenegroup/member/add?access_token=$token", $data, $headers, 20)["body"];
+            $res = requestsDingtalkApi("POST", [1,"/topapi/im/chat/scenegroup/member/add?access_token=$token"], $data, $headers, 20)["body"];
             $res = json_decode($res, true);
 
             $results[] = $res;
@@ -626,7 +640,7 @@ function group_member_get($token, $groupid) {
     	"open_conversation_id"=>$groupid
     );
     
-    $res = requests("POST", "https://oapi.dingtalk.com/topapi/im/chat/scenegroup/member/get?access_token=$token", $data, $headers, 20)["body"];
+    $res = requestsDingtalkApi("POST", [1,"/topapi/im/chat/scenegroup/member/get?access_token=$token"], $data, $headers, 20)["body"];
     $res = json_decode($res, true);
 
     return $res;
@@ -641,7 +655,7 @@ function org_delete_user($token, $userid) {
     	"userid"=>$userid
     );
     
-    $res = requests("POST", "https://oapi.dingtalk.com/topapi/v2/user/delete?access_token=$token", $data, $headers, 20)["body"];
+    $res = requestsDingtalkApi("POST", [1,"/topapi/v2/user/delete?access_token=$token"], $data, $headers, 20)["body"];
     $res = json_decode($res, true);
 
     return $res;
@@ -658,7 +672,7 @@ function kick($token,$user_ids,$open_conversation_id) {
     	"open_conversation_id"=>$open_conversation_id
     );
     
-    $res = requests("POST", "https://oapi.dingtalk.com/topapi/im/chat/scenegroup/member/delete?access_token={$token}", $data, $headers, 20)["body"];
+    $res = requestsDingtalkApi("POST", [1,"/topapi/im/chat/scenegroup/member/delete?access_token={$token}"], $data, $headers, 20)["body"];
     $res = json_decode($res, true);
     return $res;
 }
@@ -685,7 +699,7 @@ function send_interactiveCards($token, $cardTemplateId, $openConversationId, $ro
     	"cardOptions"=>$cardOptions
     );
     
-    $res = requests("POST", "https://api.dingtalk.com/v1.0/im/interactiveCards/send", $data, $headers, 20)["body"];
+    $res = requestsDingtalkApi("POST", [0,"/v1.0/im/interactiveCards/send"], $data, $headers, 20)["body"];
     $res = json_decode($res, true);
     
     if ($res['success']) {
@@ -718,7 +732,7 @@ function create_AI_interactiveCards($token, $cardData, $outTrackId = null, $card
         $data[$k] = $v;
     }
     
-    $res = requests("POST", "https://api.dingtalk.com/v1.0/card/instances", $data, $headers, 20)["body"];
+    $res = requestsDingtalkApi("POST", [0,"/v1.0/card/instances"], $data, $headers, 20)["body"];
     $res = json_decode($res, true);
     
     return [$res, $outTrackId];
@@ -739,7 +753,7 @@ function deliver_AI_interactiveCards($token, $outTrackId, $openSpaceId, $cardOpt
         $data[$k] = $v;
     }
     
-    $res = requests("POST", "https://api.dingtalk.com/v1.0/card/instances/deliver", $data, $headers, 20)["body"];
+    $res = requestsDingtalkApi("POST", [0,"/v1.0/card/instances/deliver"], $data, $headers, 20)["body"];
     $res = json_decode($res, true);
     
     return [$res, $outTrackId];
@@ -766,7 +780,7 @@ function streaming_AI_interactiveCards($token, $outTrackId, $key, $content, $gui
         "isError"=>$isError
     );
     
-    $res = requests("PUT", "https://api.dingtalk.com/v1.0/card/streaming", $data, $headers, 20)["body"];
+    $res = requestsDingtalkApi("PUT", [0,"/v1.0/card/streaming"], $data, $headers, 20)["body"];
     $res = json_decode($res, true);
     
     return [$res, $outTrackId];
@@ -783,7 +797,7 @@ function update_interactiveCards($token,$cardid, $cardData) {
         "cardData"=>$cardData
     );
     
-    $res = requests("PUT", "https://api.dingtalk.com/v1.0/im/interactiveCards", $data, $headers, 20)["body"];
+    $res = requestsDingtalkApi("PUT", [0,"/v1.0/im/interactiveCards"], $data, $headers, 20)["body"];
     $res = json_decode($res, true);
     
     return $res;
@@ -1033,6 +1047,8 @@ function send($lx, $content, $url, $Atuser, $title = "title", $pic = "", $link =
     global $bot_run_as;
     if ($content == ""){
         return false;
+    } elseif (is_array($content)) {
+        $content = json_encode($content,JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE);
     }
     $bot_run_as["logger"]["class"]->info("<- ".convertSpecialChars($content));
     if (isset($bot_run_as["sendWebhookSecret"]) && $bot_run_as["sendWebhookSecret"] !== 0) {
@@ -1334,7 +1350,7 @@ function sampleVideo($content, $url, $b, $c = "mp4", $timeout = 0){
 }
 
 function send_message($content, $url, $Atuser = 0){
-    return(send('text', $content.null, $url, $Atuser));
+    return(send('text', $content, $url, $Atuser));
 }
 
 function send_test($content, $url, $Atuser = 0){
@@ -1493,18 +1509,14 @@ function write_to_file_json($filename, $content) {
     app_json_file_add_list($bot_run_as["RUN_LOG_FILE"], ["time"=>microtime(true),"type"=>"write_to_file_json","filename"=>$filename,"filesize"=>filesize($filename)]);
 }
 
-function read_file_to_array($filename, $falseThenReturnArray = true) {
+function read_file_to_array($filename) {
     global $bot_run_as;
-    if (file_exists($filename)) {
+    if (isFileExists($filename)) {
         $content = file_get_contents($filename);
         app_json_file_add_list($bot_run_as["RUN_LOG_FILE"], ["time"=>microtime(true),"type"=>"read_file_to_array","filename"=>$filename,"filesize"=>filesize($filename)]);
         return json_decode($content, true);
     } else {
-        if ($falseThenReturnArray) {
-            return [];
-        } else {
-            return false;
-        }
+        return false;
     }
 }
 
@@ -2109,7 +2121,7 @@ function upload_to_dingtalk($type,$file,$token) {
         }
         return $mid;
     } else {
-        return '@lB_PDfmVcoEmYOrOc8e5os4oKl1M';
+        return false;
     }
 }
 
