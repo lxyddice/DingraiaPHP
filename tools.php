@@ -269,7 +269,7 @@ function requestsDingtalkApi($type, $url, $body, $headers, $timeout = 10, $onlyL
         $f['dingtalkApiCount'][$ym] = 1;
     }
     write_to_file_json("data/bot/app/count.json", $f);
-    return isset($res) ?? null;
+    return isset($res) ? $res : false;
 }
 
 function userinfo($userId, $token) {
@@ -385,8 +385,12 @@ function get_accessToken(string $key,string $secret) {
             return $cacheData[$key]['token'];
         }
     }
-    $res = requestsDingtalkApi("POST", [0,"/v1.0/oauth2/accessToken"], ["appKey" => $key, "appSecret" => $secret], ["Content-Type" => "application/json"])["body"];
-    $res = json_decode($res, true);
+    $res = requestsDingtalkApi("POST", [0,"/v1.0/oauth2/accessToken"], ["appKey" => $key, "appSecret" => $secret], ["Content-Type" => "application/json"]);
+    try {
+        $res = json_decode($res["body"], true);
+    } catch(Exception $e) {
+        return false;
+    }
 
     if (isset($res['accessToken'])) {
         $cacheData[$key] = [

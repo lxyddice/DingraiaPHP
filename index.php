@@ -5,7 +5,7 @@
  | | | | | '_ \ / _` | '__/ _` | |/ _` | |_) | |_| | |_) |
  | |_| | | | | | (_| | | | (_| | | (_| |  __/|  _  |  __/
  |____/|_|_| |_|\__, |_|  \__,_|_|\__,_|_|   |_| |_|_|
-                |___/                       v240908.2-Alpha
+                |___/                       v240909.3-Alpha
 
 error_reporting(E_ERROR | E_WARNING | E_PARSE);
 ini_set('display_errors', 1);
@@ -35,17 +35,14 @@ $bot_run_as = [];
     } elseif (isset($c['dingraia']) && $c['dingraia'] == 'master') {
         $c = $bot_run_as['callback'];
         $bot_run_as['chat_mode'] = "dingraia_master";
-    } elseif (isset($c['chat_mode'])) {
+    } elseif (isset($c['chat_mode']) && $bot_run_as["callback"]["verify"]) {
         if ($c['chat_mode'] == "cb" || $c['chat_mode'] == "mcb") {
             $bot_run_as['chat_mode'] = 'cb';
+            $hideLoadPluginInfo = 1;
             $bot_run_as['callbackContent'] = $c['callbackContent']['callback'];
             $bot_run_as['appInfo'] = $c['callbackContent']['appInfo'];
             $bot_run_as['config']['index_return'] = 200;
         }
-    } elseif (isset($c['chat_mode']) && $c['chat_mode'] == 'tgbot') {
-        $bot_run_as['body'] = $c;
-        $bot_run_as['chat_mode'] = 'tgbot';
-        $bot_run_as['chatId'] = $c['message']['chat']['id'];
     } elseif (isset($c['body']['userid'])) {
         $message = str_replace('\n', "", $c['body']['message']);
         $userid = $c['body']['userid'];
@@ -68,7 +65,9 @@ $bot_run_as = [];
         $bot_run_as["logger"]["class"]->info("[$groupnanme($conversationId)] $name($uid) -> $message");
     }
     $DingraiaPHPGet = $c;
+    
     app_json_file_add_list($bot_run_as["RUN_LOG_FILE"], ["time" => microtime(), "type" => "start", "run" => 'ok']);
+    require_once("module/DingraiaPHP/app/accountLinkage.php");
     if (isset($userid) && isset($staffid)) {
         $guserarr = userid2uid($userid);
     }
@@ -79,11 +78,40 @@ $bot_run_as = [];
 
     $bot_run_as['api_url'] = "https://api.lxyddice.top/dingbot/php/api";
     $bot_run_as['webhook'] = $webhook;
+    //$con = mysqli_connect($db_host, $db_user, $db_pass, $db_name);
+    /*
+    if ($globalmessage == "/bot d agree") {
+            write_to_file_json("data/user/is_read_disclaimer/".$guserarr['uid'].".json",['read'=>true]);
+            send_message('你同意了冰晶bot免责声明！',$webhook,$staffid);
+        }
+
+    if (!is_read_disclaimer($guserarr['uid'])) {
+        send_message("你没有同意冰晶bot免责声明，请用/bot d agree  同意\n你可以在https://mc.lxyddice.top/lxe/bot  查看",$webhook,$staffid);
+        exit();
+    }
+    */
+
+
     if (read_file_to_array("data/bot/run.json")['start'] != true) {
         //send_message("冰晶正在睡觉...",$webhook,$staffid);
         DingraiaPHPResponseExit(400, "Bot global stop");
     }
     $grouparr = read_file_to_array("config/group.json");
+    /*
+    if ($conversationType == 2) {
+        $grouparr = read_file_to_array("config/group.json");
+        if (!in_array($conversationId, $grouparr['white_list'])) {
+            send_message("该群聊不在白名单，无法使用冰晶bot",$webhook,$staffid);
+            exit();
+        }
+    } else {
+        if (!permission_check("bot.siliao", $guserarr["uid"])) {
+            send_message("你没有私聊的权限",$webhook,$staffid);
+            exit();
+        }
+    }
+    */
+    
     $pluginDir = 'plugin';
     require_once("module/DingraiaPHP/app/requireRunPlugin.php");
     $DingraiaPHPresponse = read_file_to_array("data/bot/app/response.json");
@@ -95,19 +123,19 @@ $bot_run_as = [];
             foreach ($files as $file) {
                 if (strpos($file, '.') !== 0 && strpos($file, '_') !== 0 && pathinfo($file, PATHINFO_EXTENSION) === 'php') {
                     $filePath = $pluginDir . DIRECTORY_SEPARATOR . $file;
-                    require_once $filePath;
+                    require_once($filePath);
                     $DingraiaPHPresponse["result"]["loadPlugins"]["success"] = true;
                     $DingraiaPHPresponse["result"]["loadPlugins"]["plugins"][] = $filePath;
                     $pluginarr[] = $filePath;
                 }
             }
         }
-    }
-    if ($bot_run_as["config"]["hideAllEcho"] == 0) {
-        if ($bot_run_as["config"]["useDefaultDisplayPage"] == 0) {
-            write_to_file_json("data/bot/app/response.json", ["content"=>$DingraiaPHPresponse, "type"=>"json"]);
-        } else {
-            write_to_file_json("data/bot/app/response.json", ["content"=>file_get_contents($bot_run_as["config"]["indexReveal"]), "type"=>"html"]);
+        if ($bot_run_as["config"]["hideAllEcho"] == 0) {
+            if ($bot_run_as["config"]["useDefaultDisplayPage"] == 0) {
+                write_to_file_json("data/bot/app/response.json", ["content"=>$DingraiaPHPresponse, "type"=>"json"]);
+            } else {
+                write_to_file_json("data/bot/app/response.json", ["content"=>file_get_contents($bot_run_as["config"]["indexReveal"]), "type"=>"html"]);
+            }
         }
     }
     /*
