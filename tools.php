@@ -2012,6 +2012,19 @@ function get_dingtalk_post() {
     }
     
     if (isset($body['text']) || isset($body['content'])) {
+        $cropidkey = read_file_to_array("config/cropid.json");
+        $chatbotCorpId = $body["chatbotCorpId"];
+        if (isset($cropidkey[$chatbotCorpId])) {
+            $ts = isset($headers['Timestamp']) ?? null;
+            $r = get_dingtalk_post_check_sign($ts, $cropidkey[$chatbotCorpId]["AppSecret"], isset($headers['Sign']) ?? null);
+            if ($r && ($ts / 1000) - time() < -3600) {
+                $bot_run_as["chat_mode"] = "dingtalk-message";
+            } else {
+                DingraiaPHPResponseExit(403, "Signature verification failed");
+            }
+        } else {
+            DingraiaPHPResponseExit(403, "Chatbot CorpId does not exist");
+        }
         $body['text']['content'] = ltrim($body['text']['content']);
         $logData[] = [
             'headers' => $headers,
