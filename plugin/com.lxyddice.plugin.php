@@ -24,76 +24,21 @@ if (isset($bot_run_as)) {
         ]));
     }
     
-    function versionGetPluginEnableCount($directory) {
-        $files = scandir($directory);
-        $count = 0;
-        foreach ($files as $file) {
-            if ($file[0] !== '_' && pathinfo($file, PATHINFO_EXTENSION) === 'php') {
-                $count++;
-            }
-        }
-        return $count;
-    }
-    
-    function getServerUsage() {
-        $memoryUsage = getMemoryUsage();
-        $diskUsage = getDiskUsage();
-    
-        return [
-            'cpu_usage' => 0,
-            'memory_usage' => number_format($memoryUsage, 2),
-            'disk_usage' => number_format($diskUsage, 2)
-        ];
-    }
-    
-    function getCpuUsage() {
-        $load = sys_getloadavg();
-        $cpuCoreCount = (int) shell_exec("nproc");
-    
-        if ($cpuCoreCount > 0) {
-            $cpuUsage = ($load[0] / $cpuCoreCount) * 100;
-            return $cpuUsage;
-        }
-        return 0;
-    }
-    function getMemoryUsage() {
-        $memInfo = file_get_contents("/proc/meminfo");
-        $memInfo = str_replace(array(" kB", "MemTotal:", "MemAvailable:"), "", $memInfo);
-        $memInfo = preg_split("/\s+/", trim($memInfo));
-    
-        $totalMemory = 0;
-        $availableMemory = 0;
-    
-        foreach ($memInfo as $key => $value) {
-            if ($key == 0) {
-                $totalMemory = (int)$value;
-            }
-            if ($key == 2) {
-                $availableMemory = (int)$value;
-                break;
-            }
-        }
-    
-        if ($totalMemory > 0) {
-            $usedMemory = $totalMemory - $availableMemory;
-            $memoryUsage = ($usedMemory / $totalMemory) * 100;
-            return $memoryUsage;
-        }
-        return 0;
-    }
-    
-    function getDiskUsage() {
-        $diskTotal = disk_total_space("/");
-        $diskFree = disk_free_space("/");
-    
-        if ($diskTotal > 0) {
-            $diskUsed = $diskTotal - $diskFree;
-            $diskUsage = ($diskUsed / $diskTotal) * 100;
-            return $diskUsage;
-        }
-        return 0;
-    }
     if (isset($globalmessage)) {
+
+        function versionGetPluginEnableCount($dir) {
+            $count = 0;
+            $files = scandir($dir);
+            foreach ($files as $file) {
+                if (strpos($file, '.') !== 0 && pathinfo($file, PATHINFO_EXTENSION) === 'php') {
+                    $filePath = $dir . DIRECTORY_SEPARATOR . $file;
+                    if (strpos($file, '_') !== 0) {
+                        $count++;
+                    }
+                }
+            }
+            return $count;
+        }
         if ($globalmessage == "--version" || $globalmessage == "-v") {
             $nv = $bot_run_as["config"]["dingraia_php_version"];
             $msg = "# [DingraiaPHP](https://github.com/lxyddice/DingraiaPHP)";
@@ -105,31 +50,7 @@ if (isset($bot_run_as)) {
             $msg .= "\n\n网页管理开关->".$bot_run_as["config"]["htmlAdmin"]["use"];
             $msg .= "\n\nlogger回调url数量->".count($bot_run_as["config"]["logger"]["urls"]);
             $msg .= "\n\n启用插件数量->".versionGetPluginEnableCount("plugin");
-            $su = getServerUsage();
-            $msg .= "\n\ncpu|ram|rom->{$su['cpu_usage']} | {$su['memory_usage']} | {$su['disk_usage']}";
             send_markdown($msg, $webhook, "version");
-        }
-        
-        if ($globalmessage == "/bot_start") {
-            if (permission_check("bot.start", $guserarr["uid"])) {
-                write_to_file_json("data/bot/run.json", ["start" => true]);
-                send_message("真是美好的一天呢~\nbot start", $webhook, $staffid);
-                exit();
-            } else {
-                send_message('Access denied', $webhook, $staffid);
-                exit();
-            }
-        }
-
-        if ($globalmessage == "/bot_close") {
-            if (permission_check("bot.close", $guserarr["uid"])) {
-                write_to_file_json("data/bot/run.json", ["start" => false]);
-                send_message("有点...困了...\nbot closed", $webhook, $staffid);
-                exit();
-            } else {
-                send_message('Access denied', $webhook, $staffid);
-                exit();
-            }
         }
         
         if (strpos($globalmessage, "/plugin") === 0) {
@@ -140,7 +61,7 @@ if (isset($bot_run_as)) {
             }
             $result = stringf($globalmessage);
             $todo = $result["params"][1];
-            $f = $result["params"][2];
+            $f = isset($result["params"][2]) ?? false;
             if (strpos($f, '_') !== false) {
                 $r = "插件操作失败";
                 send_message($r, $webhook);
@@ -200,7 +121,6 @@ if (isset($bot_run_as)) {
                     send_message($jsonResult, $webhook, $staffid);
                 }
             }
-            send_message($r, $webhook);
         }
     }
 }

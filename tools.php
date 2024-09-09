@@ -876,7 +876,7 @@ function requests($method, $url, $data = null, $header = [], $timeout = 20) {
 
 function DingraiaPHPCheckWarningWord($c) {
     global $bot_run_as;
-    $ww = [""];
+    $ww = ["这是违禁词功能，请自行添加"];
     foreach ($ww as $w) {
         if (strstr($c, $w)) {
             $lid = tool_log(2, ["content"=>$c, "bot"=>$bot_run_as]);
