@@ -54,6 +54,7 @@
     - 下载文件
     - 钉钉API调用统计
 - 特别功能
+    - 定时任务 能跑在PHP网页端的定时任务！
     - accessToken缓存
     - 外置插件————智齿使用框架处理非钉钉的信息
     - templeats，像Python的Flask框架一样，自定义页面
@@ -100,9 +101,7 @@
 
 # 如何使用？
 
-<code>
-git clone https://github.com/lxyddice/DingraiaPHP.git
-</code>
+`git clone https://github.com/lxyddice/DingraiaPHP.git`
 
 上传框架到你的HTTP服务器目录
 
