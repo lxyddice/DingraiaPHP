@@ -5,7 +5,7 @@
  | | | | | '_ \ / _` | '__/ _` | |/ _` | |_) | |_| | |_) |
  | |_| | | | | | (_| | | | (_| | | (_| |  __/|  _  |  __/
  |____/|_|_| |_|\__, |_|  \__,_|_|\__,_|_|   |_| |_|_|
-                |___/                       v240909.3-Alpha
+                |___/                       v2409010.2-Alpha
 
 error_reporting(E_ERROR | E_WARNING | E_PARSE);
 ini_set('display_errors', 1);
@@ -35,7 +35,7 @@ $bot_run_as = [];
     } elseif (isset($c['dingraia']) && $c['dingraia'] == 'master') {
         $c = $bot_run_as['callback'];
         $bot_run_as['chat_mode'] = "dingraia_master";
-    } elseif (isset($c['chat_mode']) && $bot_run_as["callback"]["verify"]) {
+    } elseif (isset($c['chat_mode']) && isset($bot_run_as["callback"]["verify"]) && $bot_run_as["callback"]["verify"]) {
         if ($c['chat_mode'] == "cb" || $c['chat_mode'] == "mcb") {
             $bot_run_as['chat_mode'] = 'cb';
             $hideLoadPluginInfo = 1;
