@@ -13,13 +13,11 @@ if (isset($bot_run_as["runIn"])) {
     if ($bot_run_as["runIn"] != "page") {
         require_once("install/config.php");
         require_once($autoload);
-        require_once("module/DingraiaPHP/app/serviceBan.php");
         $bot_run_as['echoLoadPlugins'] = true;
     }
 } else {
     require_once("install/config.php");
     require_once($autoload);
-    require_once("module/DingraiaPHP/app/serviceBan.php");
     $bot_run_as['echoLoadPlugins'] = true;
 }
 
@@ -822,7 +820,7 @@ function requests($method, $url, $data = null, $header = [], $timeout = 20) {
     if (strtoupper($method) == "POST") {
         curl_setopt($ch, CURLOPT_POST, true);
         if (is_array($data)) {
-            if ($header["Content-Type"] == 'application/json') {
+            if (isset($header["Content-Type"]) && $header["Content-Type"] == 'application/json') {
                 $data = json_encode($data);
             }
             curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
@@ -1161,7 +1159,7 @@ function send_groupMessages($lx, $url, $a, $b=0, $c=0, $d=0) {
     }
     $url2 = $url;
     $webhook = "https://api.dingtalk.com/v1.0/robot/groupMessages/send";
-    $url = str_replace('https://oapi.dingtalk.com/robot/sendBySession?session=', '', $url2);
+    $url = str_replace('https://oapi.dingtalk.com/robot/sendBySession?session=', '', $url2 ?? '');
     $cropidkey = read_file_to_array("config/cropid.json")[$chatbotCorpId];
     $token = get_accessToken($cropidkey['AppKey'],$cropidkey['AppSecret']);
     if ($lx == "audio") {
@@ -1888,22 +1886,6 @@ function get_dingtalk_post() {
     
     $body = json_decode($body, true);
     write_to_file_json("lastRequest.json",['G'=>$_GET, 'H'=>$headers,'B'=>$body, "request_id"=>$bot_run_as["RUN_ID"]]);
-    if (isset($_GET['cronRun'])) {
-        DingraiaPHPCron();
-    }
-    if (isset($_GET['cronStop'])) {
-        DingraiaPHPCronStop();
-    }
-    if (isset($_GET['cronRestart'])) {
-        DingraiaPHPCronRestart();
-    }
-    /*附加模块注册*/
-    $requireMoudle = "lxyddice";
-    require_once("module/DingraiaPHP/app/autoload.php");
-    
-    if ($x) {
-        return $x;
-    }
     /*接入登录阶段A*/
     if (isset($_GET['client_id']) && isset($_GET['state']) && isset($_GET['redirect_uri'])) {
         $state = $_GET['state'];
@@ -2014,6 +1996,21 @@ function get_dingtalk_post() {
         $r = get_dingtalk_card_callback($headers,$body);
         return $r;
     }
+    $requireMoudle = "lxyddice";
+    require_once("module/DingraiaPHP/main.php");
+
+    if (isset($_GET["cron"]) && isset($_GET["token"]) && $_GET["token"] == $conf["cron"]["token"]) {
+        $cron = $_GET["cron"];
+        if ($cron == "restart") {
+            $r = DingraiaPHPCronRestart(true);
+            return [$r];
+        } elseif ($cron == "stop") {
+            if (file_exists("data/bot/cron/alive.json")) {
+                unlink("data/bot/cron/alive.json");
+            }
+            return ["cronStop"];
+        }
+    }
     
     if (isset($body['text']) || isset($body['content'])) {
         $cropidkey = read_file_to_array("config/cropid.json");
@@ -2044,7 +2041,7 @@ function get_dingtalk_post() {
                 'name' => $body['senderNick'],
                 'conversationType' => $body['conversationType'],
                 'conversationId' => $body['conversationId'],
-                'chatbotCorpId' => $body['chatbotCorpId'],
+                'chatbotCorpId' => $chatbotCorpId,
                 'robotCode' => $body['robotCode']
             ],
         ];
@@ -2205,8 +2202,7 @@ function check_group_permission($conversationId,$per): bool
     }
 }
 
-function DingraiaPHPCheckUserBlackList($userid): bool
-{
+function DingraiaPHPCheckUserBlackList($userid): bool {
     $file = read_file_to_array("data/bot/user/blacklist/data.json");
     if (in_array($userid, $file['global'])) {
         return true;
@@ -2215,44 +2211,46 @@ function DingraiaPHPCheckUserBlackList($userid): bool
     }
 }
 
-function DingraiaPHPCron(): bool
-{
+function DingraiaPHPCron($msg = true): bool {
     global $bot_run_as;
-    print_r("<br>request_id:".$bot_run_as["RUN_ID"]);
     $cronAuth = "lxyddice";
     if (file_exists("data/bot/cron/stop.lock") && file_exists("data/bot/cron/alive.lock")) {
         unlink("data/bot/cron/stop.lock");
         unlink("data/bot/cron/alive.lock");
-        
-        require_once("module/DingraiaPHP/app/cron/main.php");
-    } else {
-        require_once("module/DingraiaPHP/app/cron/main.php");
-    }
-    return true;
-}
 
-function DingraiaPHPCronStop($stop = true): bool
-{
-    if (file_exists("data/bot/cron/alive.lock")) {
-        unlink("data/bot/cron/alive.lock");
-    } else {
-        DingraiaPHPResponseExit(400, "Cron is already stop");
     }
-    file_put_contents("data/bot/cron/stop.lock","");
+    require_once("module/DingraiaPHP/app/cron/main.php");
     
-    DingraiaPHPResponseExit(0, "cron stop success", "OK", $stop);
-    return true;
+    $bot_run_as["cron"]["limit"] = $bot_run_as["config"]["cron"]["autoRestart"];
+
+    return(DingraiaPHPRunCron(getScheduledTasks(read_file_to_array("data/bot/cron/tasks.json"), $bot_run_as["cron"]["limit"] + time() - 5), $msg));
 }
 
-function DingraiaPHPCronRestart() {
+function DingraiaPHPCronStop() {
+    global $bot_run_as;
+    $aliveFile = "data/bot/cron/alive.json";
+    if (file_exists($aliveFile)) {
+        if (!unlink($aliveFile)) {
+            return ["success" => false, "message" => "Failed to delete cron alive file"];
+        }
+    } else {
+        return ["success" => false, "message" => "Cron is already stop"];
+    }
+    return ["success" => true, "message" => "cron stop success"];
+}
+
+
+function DingraiaPHPCronRestart($msg = true) {
+    global $bot_run_as;
     $tag = -1;
-    if (file_exists("data/bot/cron/alive.lock")) {
-        DingraiaPHPCronStop(false);
+    if (file_exists("data/bot/cron/alive.json")) {
+        DingraiaPHPCronStop();
         $tag = 1;
     }
-    sleep(1);
-    file_put_contents("data/bot/cron/restart.lock","");
-    DingraiaPHPCron();
+    require_once("module/DingraiaPHP/app/cron/main.php");
+    $bot_run_as["cron"]["limit"] = $bot_run_as["config"]["cron"]["autoRestart"];
+
+    return(DingraiaPHPRunCron(getScheduledTasks(read_file_to_array("data/bot/cron/tasks.json"), $bot_run_as["cron"]["limit"] + time() - 5), $msg));
 }
 
 function DingraiaPHPResponseExit($errCode, $message = "Unkown Error", $m = null,$stop = true, $json = false, $jsonCus = null) {
