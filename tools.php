@@ -291,17 +291,12 @@ function getbyunionid($userId, $token) {
     );
     
     $data = array(
-    	"userid"=>$userId
+    	"unionid"=>$userId
     );
     
     $res = requestsDingtalkApi("POST", [1,"/topapi/user/getbyunionid?access_token=$token"], $data, $headers, 20)["body"];
     $res = json_decode($res, true);
-    
-    if ($res['code'] == 60121) {
-        return false;
-    } else {
-        return $res;
-    }
+    return $res;
 }
 
 function add_member($token, $c, $u) {
@@ -1886,6 +1881,7 @@ function get_dingtalk_post() {
     
     $body = json_decode($body, true);
     write_to_file_json("lastRequest.json",['G'=>$_GET, 'H'=>$headers,'B'=>$body, "request_id"=>$bot_run_as["RUN_ID"]]);
+    app_json_file_add_list($bot_run_as["RUN_LOG_FILE"], ["time"=>microtime(true),"type"=>"logRequest","data"=>['G'=>$_GET, 'H'=>$headers,'B'=>$body, "request_id"=>$bot_run_as["RUN_ID"]]]);
     /*接入登录阶段A*/
     if (isset($_GET['client_id']) && isset($_GET['state']) && isset($_GET['redirect_uri'])) {
         $state = $_GET['state'];

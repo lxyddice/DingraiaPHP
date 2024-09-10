@@ -13,19 +13,19 @@ if ($bot_run_as) {
             $apiResponse["result"] = $data;
         }
         
-        if ($_GET["type"] == 'cronSurvival') {
-            if (file_exists("data/bot/cron/alive.lock")) {
-                $pidToCheck = file_get_contents("data/bot/cron/alive.lock");
-                if (posix_getpgid($pidToCheck)) {
+        if ($_GET["type"] == 'cronAlive') {
+            if (file_exists("data/bot/cron/alive.json")) {
+                $pidToCheck = read_file_to_array("data/bot/cron/alive.json");
+                if (posix_getpgid($pidToCheck["pid"])) {
                     $apiResponse["code"] = 0;
-                    $apiResponse["result"] = ["cron"=>true,"pid"=>$pidToCheck, "survival"=>true];
+                    $apiResponse["result"] = ["cron"=>true,"pid"=>$pidToCheck["pid"], "survival"=>true, "tasks"=>$pidToCheck["uuids"]];
                 } else {
                     $apiResponse["code"] = 0;
                     $apiResponse["result"] = ["cron"=>true,"pid"=>$pidToCheck, "survival"=>false];
                 }
             } else {
                 $apiResponse["code"] = 0;
-                $apiResponse["result"] = ["cron"=>false,"pid"=>$pidToCheck, "survival"=>false];
+                $apiResponse["result"] = ["cron"=>false,"pid"=>null, "survival"=>false];
             }
         }
         

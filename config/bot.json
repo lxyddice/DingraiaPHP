@@ -24,16 +24,17 @@
     "dingraiaWithNoSQL": false, 
     "adminUsername": "lxyddice",
     "adminPassword": "114514",
-    "host_url": "http:\/\/api.lxyddice.top\/dingbot\/php\/",
+    "host_url": "",
     "botSendTestInfo": "0",
     "pluginUpdateUrl": "https:\/\/api.lxyddice.top\/v1\/DingraiaPHP\/plugins\/update",
     "noDeafult": 0,
     "cron": {
-        "autoRestart": 323,
+        "autoRestart": 200,
         "runParams": "?cronRun",
-        "stopParams": "?cronStop",
-        "restartParams": "?cronRestart",
-        "restartUrl": "?cronRestart"
+        "stopParams": "?cron=stop",
+        "restartParams": "?cron=restart",
+        "cronUrl": "",
+        "token": ""
     },
     "htmlAdmin": {
         "use": "1",
