@@ -1,14 +1,14 @@
 <?php
 if (file_exists("tools.php")) {
-    $bot_run_as["runIn"] = "page";
+    $bot["runIn"] = "page";
     require_once("tools.php");
-    if (!$bot_run_as["config"]) {
+    if (!$bot["config"]) {
         DingraiaPHPResponseExit(403, "Forbidden to display this page");
     }
 } elseif (file_exists("../../../../tools.php")) {
-    $bot_run_as["runIn"] = "page";
+    $bot["runIn"] = "page";
     require_once("../../../../tools.php");
-    if (!$bot_run_as["config"]) {
+    if (!$bot["config"]) {
         DingraiaPHPResponseExit(403, "Forbidden to display this page");
     }
 } else {

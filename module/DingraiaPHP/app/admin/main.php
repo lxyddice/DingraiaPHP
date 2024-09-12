@@ -6,11 +6,11 @@ if (file_exists("fn.php")) {
 } else {
     exit("Can't find toolkit,are you install DingraiaPHP?");
 }
-if ($bot_run_as) {
+if ($bot) {
     session_start();
     
-    $bot_run_as["responseMustTypeText"] = "no";
-    $bot_run_as["responseMustType"] = 1;
+    $bot["responseMustTypeText"] = "no";
+    $bot["responseMustType"] = 1;
     
     if (isset($_GET["return"])) {
         setcookie("return", $_GET["return"], 120);
@@ -68,16 +68,16 @@ if ($bot_run_as) {
             $lid = $_SESSION['lid'] = uuid();
             $requestUri = $_SERVER['REQUEST_URI'];
             $path = parse_url($requestUri, PHP_URL_PATH);
-            header("Location: {$bot_run_as['conf']['host_url']}?client_id={$bot_run_as['config']['htmlAdmin']['appId']}&state={$lid}&redirect_uri=".urlencode("http://".$_SERVER["HTTP_HOST"].$path."?action=admin&login=dt_verify"));
+            header("Location: {$bot['conf']['host_url']}?client_id={$bot['config']['htmlAdmin']['appId']}&state={$lid}&redirect_uri=".urlencode("http://".$_SERVER["HTTP_HOST"].$path."?action=admin&login=dt_verify"));
         } elseif (isset($_GET["login"]) && $_GET["login"] == "dt_verify") {
             if (isset($_GET['DingraiaPHPState']) && isset($_GET['state'])) {
                 $t = time();
-                $sign = hash('sha256', $_GET['DingraiaPHPState'].$_GET['state'].$t.$bot_run_as["config"]["dingraiaAuthKey"]);
-                $url = "{$bot_run_as['config']['host_url']}?action=api&type=oauth2Get&DingraiaPHPState={$_GET['DingraiaPHPState']}&state={$_GET['state']}&timeStamp={$t}&sign={$sign}";
+                $sign = hash('sha256', $_GET['DingraiaPHPState'].$_GET['state'].$t.$bot["config"]["dingraiaAuthKey"]);
+                $url = "{$bot['config']['host_url']}?action=api&type=oauth2Get&DingraiaPHPState={$_GET['DingraiaPHPState']}&state={$_GET['state']}&timeStamp={$t}&sign={$sign}";
                 $res = requests("GET",$url)['body'];
                 $res = json_decode($res, true);
                 if ($res['success'] == true) {
-                    if (in_array($res["result"]["unionId"], $bot_run_as["config"]["htmlAdmin"]["dingtalkOauth2Allow"])) {
+                    if (in_array($res["result"]["unionId"], $bot["config"]["htmlAdmin"]["dingtalkOauth2Allow"])) {
                         $data = $res['data'];
                         file_put_contents("data/user/{$data['unionId']}.json", json_encode($res, JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE));
                         setcookie("dingId", $data['unionId'], time()+86400);

@@ -1,7 +1,7 @@
 <?php
 
 function DingraiaPHP_serviceBanMain($checkArr, $type) {
-    global $bot_run_as;
+    global $bot;
     
     if ($type == "dingtalkOauth2") {
         $back = DingraiaPHP_serviceBan_dingtalkOauth2($checkArr);
@@ -11,7 +11,7 @@ function DingraiaPHP_serviceBanMain($checkArr, $type) {
 }
 
 function DingraiaPHP_serviceBan_dingtalkOauth2($arr) {
-    global $bot_run_as;
+    global $bot;
     
     $f = read_file_to_array(__DIR__."/config/dingtalkOauth2Ban.json");
     if (in_array($arr["userId"], $f)) {

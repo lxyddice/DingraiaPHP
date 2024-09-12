@@ -157,7 +157,7 @@ class Google2FA {
 
 }
 
-if ($bot_run_as) {
+if ($bot) {
     session_start();
     function DingraiaPHPHtmlAdminApi_verifyLogin() {
         $rgkNo = 1;
@@ -181,7 +181,7 @@ if ($bot_run_as) {
                 $result = true;
                 $apiResponse["tips"] = "未开启2FA，请注意账号安全";
             }
-            if ($apiUn == $bot_run_as["config"]["htmlAdmin"]["username"] && $apiPw == $bot_run_as["config"]["htmlAdmin"]["password"]  && $result) {
+            if ($apiUn == $bot["config"]["htmlAdmin"]["username"] && $apiPw == $bot["config"]["htmlAdmin"]["password"]  && $result) {
                 $apiResponse["code"] = 0;
                 $refUuid = uuid();
                 $apiResponse["result"] = ["loginUuid"=>$refUuid];
@@ -237,7 +237,7 @@ if ($bot_run_as) {
                     $robotCode = $_POST['robotCode'];
                     $r = useRobotcode2Corpid($_POST['robotCode']);
                     $chatbotCorpId = $r['cropid'];
-                    $bot_run_as["data"]["chatbotCorpId"] = $chatbotCorpId;
+                    $bot["data"]["chatbotCorpId"] = $chatbotCorpId;
                     $conversationId = $_POST['groupId'];
                     if ($_POST['chatType'] == 1) {
                         $res = sampleText($_POST['content'], $webhook, 0, [$_POST["staffId"]]);

@@ -1,5 +1,5 @@
 <?php
-if ($bot_run_as) {
+if ($bot) {
 
     class Logger {
         /*
@@ -10,14 +10,14 @@ if ($bot_run_as) {
         private int $logLowLimit;
 
         public function __construct(array $urls) {
-            global $bot_run_as;
+            global $bot;
             $this->urls = $urls;
-            $this->logLowLimit = $bot_run_as["config"]["logger"]["sendLevel"];
+            $this->logLowLimit = $bot["config"]["logger"]["sendLevel"];
         }
 
         private function useLogToolTogether(array $data): bool {
-            global $bot_run_as;
-            if ($this->$bot_run_as["config"]["logger"]["useLogToolTogether"]) {
+            global $bot;
+            if ($this->$bot["config"]["logger"]["useLogToolTogether"]) {
                 $levelMap = [
                     "TRACE" => 0,
                     "DEBUG" => 0,
@@ -36,9 +36,9 @@ if ($bot_run_as) {
 
         private function log(string $level, $message): bool {
     //        exit($level);
-            global $bot_run_as;
+            global $bot;
             $message = $this->message_checker($message);
-            if (!$bot_run_as["config"]["logger"]["open"]) {
+            if (!$bot["config"]["logger"]["open"]) {
                 return false;
             }
 
@@ -52,7 +52,7 @@ if ($bot_run_as) {
             $data = [
                 'level' => $level,
                 'message' => base64_encode($message),
-                'file' => str_replace($bot_run_as["indexDir"]."/", "", $caller["file"]) ?? "Unknown file",
+                'file' => str_replace($bot["indexDir"]."/", "", $caller["file"]) ?? "Unknown file",
                 'line_no' => $caller['line'] ?? null,
                 'function' => $caller['function'] ?? null,
                 'timestamp' => microtime(true),
@@ -64,8 +64,8 @@ if ($bot_run_as) {
 
         private function sendLog(array $data) {
             
-            global $bot_run_as;
-            $logFile = "data/bot/logger/f/{$bot_run_as['RUN_ID']}.json";
+            global $bot;
+            $logFile = "data/bot/logger/f/{$bot['RUN_ID']}.json";
             if (!is_dir("data/bot/logger/f")) {
                 mkdir("data/bot/logger/f", 0777, true);
                 mkdir("data/bot/logger/c", 0777, true);
@@ -74,7 +74,7 @@ if ($bot_run_as) {
                 write_to_file_json($logFile, $data);
             }
             if ($data["message"] == "RU5E" && $data["level"] == "TRACE") {
-                copy($logFile, "data/bot/logger/c/{$bot_run_as['RUN_ID']}.json");
+                copy($logFile, "data/bot/logger/c/{$bot['RUN_ID']}.json");
                 unlink($logFile);
                 return $data;
             } else {
@@ -135,6 +135,6 @@ if ($bot_run_as) {
             return $this->log('CRITICAL', $message);
         }
     }
-    $logger["conf"] = $bot_run_as["config"]["logger"];
-    $bot_run_as["logger"]["class"] = new Logger($logger["conf"]["urls"]);
+    $logger["conf"] = $bot["config"]["logger"];
+    $bot["logger"]["class"] = new Logger($logger["conf"]["urls"]);
 }

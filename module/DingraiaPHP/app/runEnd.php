@@ -14,10 +14,10 @@ function xy_arrayToXml($arr) {
 }
 
 function DingraiaPHPRunEnd($hideLoadPluginInfo, $hideLoadPluginInfo_B) {
-    global $bot_run_as, $DingraiaPHPPdo;
+    global $bot, $DingraiaPHPPdo;
 
-    if ($bot_run_as['startTime']) {
-        endBotRun($bot_run_as);
+    if ($bot['startTime']) {
+        endBotRun($bot);
     }
 
     if ($DingraiaPHPPdo) {
@@ -29,8 +29,8 @@ function DingraiaPHPRunEnd($hideLoadPluginInfo, $hideLoadPluginInfo_B) {
 
     $response = read_file_to_array("data/bot/app/response.json");
 
-    if (isset($bot_run_as["responseMustType"]) && $bot_run_as["responseMustType"] == 1) {
-        $response["type"] = $bot_run_as["responseMustTypeText"];
+    if (isset($bot["responseMustType"]) && $bot["responseMustType"] == 1) {
+        $response["type"] = $bot["responseMustTypeText"];
     }
     
     $response["type"] = isset($response["type"]) ? $response["type"] : "html";
@@ -43,26 +43,26 @@ function DingraiaPHPRunEnd($hideLoadPluginInfo, $hideLoadPluginInfo_B) {
     write_to_file_json("data/bot/app/response.json", []);
 }
 
-function endBotRun(&$bot_run_as) {
-    $bot_run_as["schedule"] = "end";
+function endBotRun(&$bot) {
+    $bot["schedule"] = "end";
     require_once(__DIR__ . "/webhook/main.php");
 
     $endTime = microtime(true);
     $endMemory = memory_get_usage();
-    $executionTime = round($endTime - $bot_run_as['startTime'], 4);
-    $usedMemory = formatBytes($endMemory - $bot_run_as['startMemory']);
+    $executionTime = round($endTime - $bot['startTime'], 4);
+    $usedMemory = formatBytes($endMemory - $bot['startMemory']);
 
-    app_json_file_add_list($bot_run_as["RUN_LOG_FILE"], [
+    app_json_file_add_list($bot["RUN_LOG_FILE"], [
         "time" => microtime(true),
         "type" => "end",
         "data" => [
-            "bot_run_as" => $bot_run_as,
+            "bot_run_as" => $bot,
             "usedMemory" => $usedMemory,
             "executionTime" => $executionTime
         ]
     ]);
     
-    $bot_run_as["logger"]["class"]->trace("END");
+    $bot["logger"]["class"]->trace("END");
 }
 
 function executeEndTasks() {

@@ -1,11 +1,11 @@
 <?php
-if ($bot_run_as) {
+if ($bot) {
     if (isset($_GET['action']) && $_GET['action'] == "api") {
         $_GET['type'] = $_GET['type']?? "";
-        $bot_run_as["useDefaultDisplayPage"] = false;
+        $bot["useDefaultDisplayPage"] = false;
         $hideLoadPluginInfo = 1;
         header('Content-Type: application/json');
-        $apiResponse = ["success"=>false,"code"=>404,"message"=>"API端点不存在","result"=>null,"request_id"=>$bot_run_as["RUN_ID"]];
+        $apiResponse = ["success"=>false,"code"=>404,"message"=>"API端点不存在","result"=>null,"request_id"=>$bot["RUN_ID"]];
         /*无授权API*/
         if ($_GET['type'] == 'version') {
             $data = read_file_to_array('config/bot.json')['dingraia_php_version'];
@@ -155,8 +155,8 @@ if ($bot_run_as) {
                 $sign = $_GET['sign'];
                 $f = read_file_to_array("data/bot/oauth2Login.json");
                 $o = read_file_to_array("data/bot/oauth2.json");
-                $tsign = hash('sha256', $DingraiaPHPState.$state.$ts.$bot_run_as['config']['dingraiaAuthKey']);
-                if ($sign == $tsign && time() > $bot_run_as['config']['dingraiaAuthTimeout']) {
+                $tsign = hash('sha256', $DingraiaPHPState.$state.$ts.$bot['config']['dingraiaAuthKey']);
+                if ($sign == $tsign && time() > $bot['config']['dingraiaAuthTimeout']) {
                     if (isset($f[$DingraiaPHPState]) && $o[$DingraiaPHPState]['state'] == $state) {
                         $r = read_file_to_array("data/bot/oauth2UsedState.json");
                         if (isset($r[$DingraiaPHPState])) {
@@ -204,7 +204,7 @@ if ($bot_run_as) {
             $f = read_file_to_array("data/bot/oauth2Login.json");
             $o = read_file_to_array("data/bot/oauth2.json");
             if (isset($f[$DingraiaPHPState]) && $o[$DingraiaPHPState]['state'] == $state) {
-                $tsign = hash('sha256', $ts.$bot_run_as['config']['dingraiaAuthKey']);
+                $tsign = hash('sha256', $ts.$bot['config']['dingraiaAuthKey']);
                 if ($sign == $tsign) {
                     $apiResponse['code'] = 0;
                     $apiResponse['result'] = $f[$DingraiaPHPState];
@@ -358,12 +358,12 @@ if ($bot_run_as) {
             }
             $apiResponse["apiPath"] = $_GET["type"];
         }
-        if (!$bot_run_as["useDefaultDisplayPage"]) {
+        if (!$bot["useDefaultDisplayPage"]) {
             $r = write_to_file_json("data/bot/app/response.json", ["type"=>"no"]);
-            $bot_run_as["responseMustTypeText"] = "no";
-            $bot_run_as["responseMustType"] = 1;
+            $bot["responseMustTypeText"] = "no";
+            $bot["responseMustType"] = 1;
             echo(json_encode($apiResponse, JSON_UNESCAPED_UNICODE));
-            app_json_file_add_list($bot_run_as["RUN_LOG_FILE"], ["time"=>microtime(true),"type"=>"apiResponse","result"=>$apiResponse]);
+            app_json_file_add_list($bot["RUN_LOG_FILE"], ["time"=>microtime(true),"type"=>"apiResponse","result"=>$apiResponse]);
         }
     }
 }

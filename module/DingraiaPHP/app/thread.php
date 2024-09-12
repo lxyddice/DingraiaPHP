@@ -1,5 +1,5 @@
 <?php
-if ($bot_run_as) {
+if ($bot) {
     declare(ticks=1);
     
     class Thread {
@@ -77,7 +77,7 @@ if ($bot_run_as) {
         }
       }
     }
-    $bot_run_as["thread"]["class"] = new Thread();
+    $bot["thread"]["class"] = new Thread();
 }
     //Thread::register(随便填, 函数名, [参数数组]);
     //$outputs = Thread::run();

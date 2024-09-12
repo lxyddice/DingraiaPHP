@@ -1,5 +1,5 @@
 <?php
-if ($bot_run_as) {
+if ($bot) {
     session_start();
     if (isset($_GET["page"])) {
         $pageFile = read_file_to_array(__DIR__."/page.json");
@@ -11,7 +11,7 @@ if ($bot_run_as) {
     } else {
         header("Location: ?action=p&page=index");
     }
-    $bot_run_as["responseMustTypeText"] = "no";
-    $bot_run_as["responseMustType"] = 1;
+    $bot["responseMustTypeText"] = "no";
+    $bot["responseMustType"] = 1;
 }
 ?>

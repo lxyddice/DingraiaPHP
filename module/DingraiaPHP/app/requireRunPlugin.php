@@ -1,17 +1,17 @@
 <?php
-if ($bot_run_as) {
-    foreach($bot_run_as["config"]["accessHeader"] as $ah) {
+if ($bot) {
+    foreach($bot["config"]["accessHeader"] as $ah) {
         header($ah);
     }
     require_once("install/config.php");
     include_once("pdo.php");
     include_once(__DIR__."/api/main.php");
     if (isset($_GET['action']) && $_GET['action'] == "admin") {
-        $bot_run_as["useDefaultDisplayPage"] = false;
+        $bot["useDefaultDisplayPage"] = false;
         require_once("module/DingraiaPHP/app/admin.php");
     }
     if (isset($_GET['action']) && $_GET['action'] == "p") {
-        $bot_run_as["useDefaultDisplayPage"] = false;
+        $bot["useDefaultDisplayPage"] = false;
         require_once(__DIR__."/templeats/start.php"); 
     }
     

@@ -1,7 +1,7 @@
 <?php
-if ($bot_run_as) {
+if ($bot) {
     if ($_GET["type"] == "yiyan") {
-        $bot_run_as['config']['index_not_load'] = 1;
+        $bot['config']['index_not_load'] = 1;
         
         $jsonData = file_get_contents('asset/apiAsset/sentences/version.json');
         $data = json_decode($jsonData, true);

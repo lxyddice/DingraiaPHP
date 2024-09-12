@@ -6,7 +6,7 @@ if ($requireMoudle == "lxyddice") {
 }
 
 function DingraiaPHPLoadMoudlePluginMain($body, $conf) {
-    global $bot_run_as;
+    global $bot;
     
     if (isset($_GET["cronDie"])) {
         $cronAuth = "lxyddice";
@@ -26,7 +26,7 @@ function DingraiaPHPLoadMoudlePluginMain($body, $conf) {
                                 $c = $func($body, $conf);
                                 if ($c) {
                                     $cm = isset($plugin["chatMode"])? $plugin["chatMode"] : "default";
-                                    $c["chat_mode"] = $bot_run_as["chat_mode"] = $cm;
+                                    $c["chat_mode"] = $bot["chat_mode"] = $cm;
                                     $r[] = $c;
                                     return $r;
                                 } elseif (isset($plugin["failReturn"])) {

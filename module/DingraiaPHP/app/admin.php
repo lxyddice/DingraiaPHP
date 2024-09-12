@@ -1,7 +1,7 @@
 <?php
-if (!$bot_run_as) {
+if (!$bot) {
     if (file_exists("../../../tools.php")) {
-        $bot_run_as["runIn"] = "page";
+        $bot["runIn"] = "page";
         require_once("../../../tools.php");
         DingraiaPHPResponseExit(403, "Forbidden to interview this page");
     } else {

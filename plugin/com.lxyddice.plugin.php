@@ -1,5 +1,5 @@
 <?php
-if (isset($bot_run_as)) {
+if (isset($bot)) {
     $pluginData = [
         "data/bot/pluginData.json",
         "data/bot/plugin.json",
@@ -40,15 +40,15 @@ if (isset($bot_run_as)) {
             return $count;
         }
         if ($globalmessage == "--version" || $globalmessage == "-v") {
-            $nv = $bot_run_as["config"]["dingraia_php_version"];
+            $nv = $bot["config"]["dingraia_php_version"];
             $msg = "# [DingraiaPHP](https://github.com/lxyddice/DingraiaPHP)";
             $msg .= "\n\n一个PHP钉钉小程序框架...";
             $msg .= "\n\n当前版本->{$nv}";
             $msg .= "\n\n最新版本->offline";
-            $msg .= "\n\n新版首页开关->".$bot_run_as["config"]["useDefaultDisplayPage"];
-            $msg .= "\n\n定时任务重启->".$bot_run_as["config"]["cron"]["autoRestart"];
-            $msg .= "\n\n网页管理开关->".$bot_run_as["config"]["htmlAdmin"]["use"];
-            $msg .= "\n\nlogger回调url数量->".count($bot_run_as["config"]["logger"]["urls"]);
+            $msg .= "\n\n新版首页开关->".$bot["config"]["useDefaultDisplayPage"];
+            $msg .= "\n\n定时任务重启->".$bot["config"]["cron"]["autoRestart"];
+            $msg .= "\n\n网页管理开关->".$bot["config"]["htmlAdmin"]["use"];
+            $msg .= "\n\nlogger回调url数量->".count($bot["config"]["logger"]["urls"]);
             $msg .= "\n\n启用插件数量->".versionGetPluginEnableCount("plugin");
             send_markdown($msg, $webhook, "version");
         }
