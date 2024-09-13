@@ -280,6 +280,7 @@ function userinfo($userId, $token) {
     );
     
     $res = requestsDingtalkApi("POST", [1,"/topapi/v2/user/get?access_token=$token"], $data, $headers, 20)["body"];
+    
     $res = json_decode($res, true);
     
     return $res;
@@ -743,6 +744,27 @@ function create_AI_interactiveCards($token, $cardData, $outTrackId = null, $card
     $res = json_decode($res, true);
     
     return [$res, $outTrackId];
+}
+
+function update_interactiveCards_v2($token,$outTrackId, $cardOptions = []) {
+    $headers = array(
+        "Content-Type" => "application/json",
+        "x-acs-dingtalk-access-token" => $token
+    );
+    
+    $data = array(
+        "outTrackId"=>$outTrackId,
+        "userIdType"=>1
+    );
+
+    foreach ($cardOptions as $k => $v) {
+        $data[$k] = $v;
+    }
+    
+    $res = requestsDingtalkApi("PUT", [0,"/v1.0/im/interactiveCards"], $data, $headers, 20)["body"];
+    $res = json_decode($res, true);
+    
+    return json_encode([$res, $outTrackId, $data]);
 }
 
 function deliver_AI_interactiveCards($token, $outTrackId, $openSpaceId, $cardOptions = []) {
@@ -1317,7 +1339,6 @@ function sampleMarkdown($content, $webhook, $title, $staffid) {
     return true;
 }
 
-
 function sampleImageMsg($content, $url, $timeout = 0, $touser = null){
     if ($timeout > 45) {
         send_message('撤回时间不能大于45秒',$url, $staffid);
@@ -1806,7 +1827,6 @@ function get_dingtalk_post_check_sign($timestamp, $secret, $si): bool
 
 function get_dingtalk_card_callback($headers, $body) {
     if (isset($body['corpId'])) {
-        $c['openConversationId'] = $body['openConversationId'];
         $c['outTrackId'] = $body['outTrackId'];
         $c['userId'] = $body['userId'];
         $c['content'] = $body['content'];
@@ -2003,7 +2023,7 @@ function get_dingtalk_post() {
             $f[$bot["RUN_ID"]] = $r;
             if ($r) {
                 write_to_file_json("data/callback.json",$f);
-                write_to_file_json("data/bot/cache/callback,{$ymd},{$bot['RUN_ID']}.json",[$bot["RUN_ID"],$r]);
+                write_to_file_json("data/bot/cache/callback/callback,{$ymd},{$bot['RUN_ID']}.json",[$bot["RUN_ID"],$r]);
             }
             $c[] = ["chat_mode"=>"cb", 'callbackContent' => $r];
             return $c;
@@ -2334,7 +2354,7 @@ function DingraiaPHP_pdoRunQuery($pdo, $sql, $params = array()) {
         $stmt->execute($params);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     } catch (PDOException $e) {
-        return false;
+        return ["code"=>500,"message"=>$e->getMessage()];
     }
 }
 
@@ -2378,6 +2398,7 @@ html{background:#eee}body{background:#fff;color:#333;font-family:"微软雅黑",
         exit;
     }
 }
+
 class DingraiaPHPTools {
     public function __construct() {
         global $bot;
