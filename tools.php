@@ -31,8 +31,7 @@ function dingraia_version_b() {
     return requests("GET","https://api.lxyddice.top/dingbot/php/?action=api&type=version")["body"];
 }
 
-function is_read_disclaimer($uid): bool
-{
+function is_read_disclaimer($uid): bool{
     $fp = "data/user/is_read_disclaimer/$uid.json";
     if (file_exists($fp)) {
         $data = json_decode(file_get_contents($fp));
@@ -42,24 +41,24 @@ function is_read_disclaimer($uid): bool
     }
     return false;
 }
-function containsValidCharacters_1($str): bool
-{
+
+function containsValidCharacters_1($str): bool{
     if (preg_match('/[^A-Za-z0-9\-]/', $str)) {
         return false;
     } else {
         return true;
     }
 }
-function containsValidCharacters_2($str): bool
-{
+
+function containsValidCharacters_2($str): bool{
     if (preg_match('/[^A-Za-z0-9\-_]/', $str)) {
         return false;
     } else {
         return true;
     }
 }
-function DingraiaPHPRandomStrGenerator($length = 16): string
-{
+
+function DingraiaPHPRandomStrGenerator($length = 16): string{
     $str = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
     $len = strlen($str)-1;
     $randstr = '';
@@ -69,6 +68,7 @@ function DingraiaPHPRandomStrGenerator($length = 16): string
     }
     return $randstr; 
 }
+
 function DingraiaPHPCreateShortUrl($url, $onlyOnce = true, $idL = 8) {
     global $bot;
     $urlB64 = base64_encode($url);
@@ -117,9 +117,7 @@ function DingraiaPHPGetIp(): array {
     return $realip;
 }
 
-
-function updateMoney($uid, $changeAmount): bool
-{
+function updateMoney($uid, $changeAmount): bool{
     if (!is_numeric($uid) || !is_numeric($changeAmount)) {
         return false;
     }
@@ -137,15 +135,6 @@ function updateMoney($uid, $changeAmount): bool
         }
     }
     return false;
-}
-
-function not_require(): bool
-{
-    if ($_SERVER['PHP_SELF'] === __FILE__) {
-        return false;
-    } else {
-        return true;
-    }
 }
  
 function stringf($string, $a = ' '): array
@@ -234,8 +223,7 @@ function uuid() {
 }  
  
 
-function formatBytes($bytes, $precision = 2): string
-{
+function formatBytes($bytes, $precision = 2): string {
     $units = array('B', 'KB', 'MB', 'GB', 'TB');
 
     $bytes = max($bytes, 0);
@@ -259,13 +247,22 @@ function requestsDingtalkApi($type, $url, $body, $headers, $timeout = 10, $onlyL
             write_to_file_json("data/bot/app/count.json", ["count"=>0]);
         }
     }
+    if (strstr($url[1],"?")) {
+        $index = strpos($url[1],"?");
+        
+        $ur = substr($url[1],0,$index);
+    } else {
+        $ur = $url[1];
+    }
+
     $f = read_file_to_array("data/bot/app/count.json");
     $ym = date("Ym");
     if (isset($f['dingtalkApiCount'][$ym])) {
-        $f['dingtalkApiCount'][$ym]++;
+        $f['dingtalkApiCount'][$ym]['count']++;
     } else {
-        $f['dingtalkApiCount'][$ym] = 1;
+        $f['dingtalkApiCount'][$ym]['count'] = 1;
     }
+    $f['dingtalkApiCount'][$ym][$ur] = isset($f['dingtalkApiCount'][$ym][$ur])? $f['dingtalkApiCount'][$ym][$ur] + 1 : 1;
     write_to_file_json("data/bot/app/count.json", $f);
     return isset($res) ? $res : false;
 }
@@ -1890,6 +1887,10 @@ function request_to_slave($corpId = null, $data = null) {
     
     $res = requests("POST", "https://api.dingtalk.com/v1.0/robot/groupMessages/recall", $data, $headers, 20)["body"];
     return $res;
+}
+
+function DingraiaPHPOrgCacheUser() {
+    global $bot;
 }
 
 function get_dingtalk_callback($timestamp,$nonce,$body) {
