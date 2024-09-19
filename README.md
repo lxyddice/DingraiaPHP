@@ -1,4 +1,4 @@
-此文档最后更新于24/09/09 `v240909.5-Alpha`
+此文档最后更新于24/09/20 `v240920.1-Alpha`
 
 [破坏性更新](/doc/破坏性更新.md)
 
@@ -54,7 +54,7 @@
     - 下载文件
     - 钉钉API调用统计
 - 特别功能
-    - 定时任务 能跑在PHP网页端的定时任务！
+    - 定时任务 能跑在PHP网页端的定时任务！（PHP8+ ONLY）
     - accessToken缓存
     - 外置插件————智齿使用框架处理非钉钉的信息
     - templeats，像Python的Flask框架一样，自定义页面
@@ -121,7 +121,7 @@
 
 需要公网可访问的服务器，还得拥有企业内部开发权限
 
-# 号外
+# 别的要说的
 
 插件社区准备开发，欢迎来到[https://github.com/lxyddice/DingraiaPHP_offical](https://github.com/lxyddice/DingraiaPHP_offical)！
 
