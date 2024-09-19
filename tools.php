@@ -761,7 +761,7 @@ function update_interactiveCards_v2($token,$outTrackId, $cardOptions = []) {
     $res = requestsDingtalkApi("PUT", [0,"/v1.0/im/interactiveCards"], $data, $headers, 20)["body"];
     $res = json_decode($res, true);
     
-    return json_encode([$res, $outTrackId, $data]);
+    return [$res, $outTrackId, $data];
 }
 
 function deliver_AI_interactiveCards($token, $outTrackId, $openSpaceId, $cardOptions = []) {
@@ -2067,7 +2067,7 @@ function get_dingtalk_post() {
         } else {
             DingraiaPHPResponseExit(403, "Chatbot CorpId does not exist");
         }
-        $body['text']['content'] = ltrim($body['text']['content']);
+        $body['text']['content'] = isset($body['text']['content']) ? ltrim($body['text']['content']) : "";
         if (!isset($body["atUsers"])) {
             $body["atUsers"] = [];
         }
