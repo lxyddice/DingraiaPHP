@@ -132,6 +132,7 @@ $bot = [];
                 }
             }
         }
+        
         if ($bot["config"]["hideAllEcho"] == 0) {
             if ($bot["config"]["useDefaultDisplayPage"] == 0) {
                 write_to_file_json("data/bot/app/response.json", ["content"=>$DingraiaPHPresponse, "type"=>"json"]);
