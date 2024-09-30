@@ -76,8 +76,6 @@ $bot = [];
         global $$functionName;
     }
 
-    $bot["tools"] = new DingraiaPHPTools();
-
     $bot['webhook'] = $webhook;
     
     //$con = mysqli_connect($db_host, $db_user, $db_pass, $db_name);

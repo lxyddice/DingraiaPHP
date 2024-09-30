@@ -44,7 +44,8 @@ function app_start() {
     
     write_to_file_json($bot["RUN_LOG_FILE"], []);
 
-    
+    $bot["tools"] = new DingraiaPHPTools();
+
     $requireMoudle = "lxyddice";
     require_once("module/DingraiaPHP/app/autoload.php");
 }

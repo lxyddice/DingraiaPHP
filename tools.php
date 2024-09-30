@@ -15,14 +15,59 @@ if (isset($bot["runIn"])) {
         require_once($autoload);
         $bot['echoLoadPlugins'] = true;
     }
+    DingraiaPHP_startSQL(isset($db_host) ? $db_host : false, isset($db_user) ? $db_user : false, isset($db_pass) ? $db_pass : false, isset($db_name) ? $db_name : false, isset($db_port) ? $db_port : 3306, isset($db_charset) ? $db_charset : "utf8mb4");
+    DingraiaPHP_startRedis(isset($redis_host) ? $redis_host : false, isset($redis_port) ? $redis_port : false, isset($redis_auth) ? $redis_auth : false, isset($redis_db) ? $redis_db : false);
 } else {
     require_once("install/config.php");
     require_once($autoload);
     $bot['echoLoadPlugins'] = true;
+    DingraiaPHP_startSQL(isset($db_host) ? $db_host : false, isset($db_user) ? $db_user : false, isset($db_pass) ? $db_pass : false, isset($db_name) ? $db_name : false, isset($db_port) ? $db_port : 3306, isset($db_charset) ? $db_charset : "utf8mb4");
+    DingraiaPHP_startRedis(isset($redis_host) ? $redis_host : false, isset($redis_port) ? $redis_port : false, isset($redis_auth) ? $redis_auth : false, isset($redis_db) ? $redis_db : false);
 }
 
 $bot['startTime'] = microtime(true);
 $bot['startMemory'] = memory_get_usage();
+
+function DingraiaPHP_startSQL($db_host, $db_user, $db_pass, $db_name, $db_port = 3306, $db_charset = "utf8mb4") {
+    global $bot;
+    try {
+        $dsn = "mysql:host=$db_host;port=$db_port;dbname=$db_name;charset=$db_charset";
+        $pdo = new PDO($dsn, $db_user, $db_pass);
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $pdo->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
+        $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
+        $bot["sqlConnect"] = true;
+        $bot["sql"] = $pdo;
+        return ["code"=>0, "pdo"=>$pdo];
+    } catch (PDOException $e) {
+        $bot["sqlConnect"] = false;
+        return ["code"=>500, "msg"=>$e->getMessage()];
+    }
+}
+
+function DingraiaPHP_startRedis($redis_host, $redis_port, $redis_auth = "", $redis_db = 0) {
+    global $bot;
+    try {
+        if (!extension_loaded('redis')) {
+            return ["code"=>500, "msg"=>"Redis extension not loaded"];
+        }
+        if (!$redis_host || !$redis_port) {
+            return ["code"=>500, "msg"=>"Redis host or port not set"];
+        }
+        $redis = new Redis();
+        $redis->connect($redis_host, $redis_port);
+        if (!empty($redis_auth)) {
+            $redis->auth($redis_auth);
+        }
+        $redis->select($redis_db);
+        $bot["redisConnect"] = true;
+        $bot["redis"] = $redis;
+        return ["code"=>0, "redis"=>$redis];
+    } catch (RedisException $e) {
+        $bot["redisConnect"] = false;
+        return ["code"=>(int)$e->getCode(), "msg"=>$e->getMessage()];
+    }
+}
 
 function dingraia_version() {
     return requests("GET","https://api.lxyddice.top/dingbot/php/?action=api&type=version")["body"];
@@ -932,6 +977,9 @@ function get_message($lx, $content, $Atuser, $title, $pic, $link, $x){
             if (is_array($content)) {
                 $content = json_encode($content,JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE);
             }
+            if ($bot["useBindStaffId"]) {
+                $Atuser = $bot["useBindStaffId"];
+            }
             $content = '@'.$Atuser." ".$content;
             $isAtAll = false;
         }
@@ -952,7 +1000,6 @@ function get_message($lx, $content, $Atuser, $title, $pic, $link, $x){
             ),
             "text" => array(
                 "content" => $content."\n".$testbot
-                //"content" => $content;
             ),
             "msgtype" => "text"
         );
@@ -1082,14 +1129,11 @@ function send($lx, $content, $url, $Atuser, $title = "title", $pic = "", $link =
     } else {
         $secret = "";
     }
-    // 生成时间戳和加签
     date_default_timezone_set('Asia/Shanghai');
     $timestamp = strval(round(microtime(true) * 1000));
     $string_to_sign = $timestamp . "\n" . $secret;
     $sign = urlencode(base64_encode(hash_hmac('sha256', $string_to_sign, $secret, true)));
-    // 拼接 WebHook 地址
     $webhook = $url . "&timestamp=" . $timestamp . "&sign=" . $sign;
-    // 构建消息体
     $message = get_message($lx, $content, $Atuser, $title, $pic, $link, $x);
     if (!check_send_lq($webhook1)) {
         return false;
@@ -1099,7 +1143,6 @@ function send($lx, $content, $url, $Atuser, $title = "title", $pic = "", $link =
     );
 
     $result = DingraiaPHPPostNormalChat($message, $webhook, $header);
-    //log_message($webhook1, $message, $content, $result, $globalmessage);
     return $result;
 }
 
@@ -2020,12 +2063,7 @@ function get_dingtalk_post() {
             require_once('module/DingraiaPHP/functions/getcallback.php');
             $encrypt = $body['encrypt'];
             $r = dingraiaDingtalkCallback($encrypt);
-            $f = read_file_to_array("data/callback.json");
-            $f[$bot["RUN_ID"]] = $r;
-            if ($r) {
-                write_to_file_json("data/callback.json",$f);
-                write_to_file_json("data/bot/cache/callback/callback,{$ymd},{$bot['RUN_ID']}.json",[$bot["RUN_ID"],$r]);
-            }
+            write_to_file_json("data/bot/cache/callback/callback,{$ymd},{$bot['RUN_ID']}.json",[$bot["RUN_ID"],$r]);
             $c[] = ["chat_mode"=>"cb", 'callbackContent' => $r];
             return $c;
         } else {
@@ -2071,7 +2109,8 @@ function get_dingtalk_post() {
         if (!isset($body["atUsers"])) {
             $body["atUsers"] = [];
         }
-        $logData[] = [
+        $body["senderStaffId"] = DingraiaPHP_checkOtherAccountBind($body["senderNick"], $body['senderStaffId']);
+            $logData[] = [
             'headers' => $headers,
             'body' => [
                 'isAdmin' => $body['isAdmin'],
@@ -2107,6 +2146,19 @@ function get_dingtalk_post() {
     } else {
         return false;
     }
+}
+
+function DingraiaPHP_checkOtherAccountBind($nick, $staffId) {
+    global $bot;
+    $data = file_exists("config/userBind.json") ? read_file_to_array("config/userBind.json") : [];
+    foreach ($data as $k => $v) {
+        if (in_array($staffId, $v)) {
+            $bot["useBindStaffId"] = $staffId;
+            return $k;
+        }
+    }
+    $bot["useBindStaffId"] = false;
+    return $staffId;
 }
 
 function customErrorHandler($errno, $errstr, $errfile, $errline) {
@@ -2424,6 +2476,48 @@ class DingraiaPHPTools {
             return $curlInfo['redirect_url'];
         }
         return false;
+    }    public function runPdoQuery($sql, $params = array(), $useRedis = false, $redisKey = null, $expire = 3600, $op = []) {
+        global $bot;
+        try {
+            if ($useRedis) {
+                if ($this->bot["redisConnect"]) {
+                    $redis = $this->bot["redis"];
+                    $redisKey = $redisKey? $redisKey : md5($sql.json_encode($params));
+                    $data = $redis->get($redisKey);
+                    if ($data) {
+                        return json_decode($data, true);
+                    }
+                    $data = $this->runPdoQuery($sql, $params, false);
+                    $redis->set($redisKey, json_encode($data), $expire);
+                    return ["code"=>0, "data" => $data];
+                } else {
+                    return $this->runPdoQuery($sql, $params, false);
+                }
+            } else {
+                $pdo = $this->bot["sql"];
+                $data = DingraiaPHP_pdoRunQuery($pdo, $sql, $params);
+                return ["code"=>0, "data" => $data];
+            }
+        } catch (PDOException $e) {
+            return ["code"=>500,"message"=>$e->getMessage()];
+        }
+    }
+
+    public function sqlCheckTableExists($dbName, $tableName) {
+        $bot = $this->bot;
+        if ($bot["sqlConnect"]) {
+            $pdo = $bot["sql"];
+            $sql = "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = :dbName AND table_name = :tableName";
+            $params = array("dbName" => $dbName, "tableName" => $tableName);
+            $data = DingraiaPHP_pdoRunQuery($pdo, $sql, $params);
+            if ($data[0]["COUNT(*)"] > 0) {
+                return ["code"=>0, "msg"=>"table exists"];
+            } else {
+                return ["code"=>-1, "msg"=>"table not exists"];
+            }
+        } else {
+            return ["code"=>500, "msg"=>"sql not connect"];
+        }
     }
 }
 ?>
